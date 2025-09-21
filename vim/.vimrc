@@ -40,8 +40,12 @@ highlight CursorLineNr ctermfg=130
 highlight LineNrAbove ctermfg=8
 highlight LineNrBelow ctermfg=8
 highlight FoldColumn ctermbg=1 ctermfg=7
-highlight VertSplit ctermfg=1
+highlight VertSplit ctermfg=0
 highlight Folded ctermbg=None ctermfg=244
+highlight StatusLine ctermfg=8
+highlight StatusLineNC ctermfg=8
+highlight NonText ctermfg=8
+highlight SignColumn ctermbg=None ctermfg=8
 set fillchars=vert:\ ,fold:\ 
 
 "" Tab behaviour
@@ -114,6 +118,7 @@ set foldtext=CustomFoldText()
 set ignorecase
 set smartcase
 set incsearch
+set hlsearch
 noremap <Leader>h :<C-u>noh<CR>
 " Open a quickfix window for the last search.
 nnoremap <silent> <Leader>/ :execute 'vimgrep /'.@/.'/g %' <bar> copen<CR>
@@ -130,77 +135,113 @@ set spellfile=~/.vim/spell/en.utf-8.add
 highlight SpellBad ctermbg=5 ctermfg=15
 
 "" Packages
-""" vim-markdown
-let g:pandoc#modules#enabled=["folding","command","toc","spell","hypertext"]
-let g:pandoc#folding#fdc=0
-let g:pandoc#syntax#conceal#use=0
-au BufWinEnter *.md let &foldlevel = max(map(range(1, line('$')), 'foldlevel(v:val)'))
+""" fzf.vim
+set runtimepath+=~/.fzf
+nnoremap <Leader>ff :<C-u>Files<CR>
+nnoremap <Leader>fb :<C-u>Buffers<CR>
+nnoremap <Leader>fg :<C-u>GFiles<CR>
+nnoremap <Leader>f/ :<C-u>History/<CR>
 
-""" airline
-"airlineconceal#use=0
-let g:airline_enable_branch=0
-let g:airline_powerline_fonts=1
-let g:airline_theme='mytheme'
-let g:airline_skip_empty_sections=1
-let g:airline_detect_paste=1
-let g:airline_render_statusline_in_tabline=1
-let g:airline#extensions#tabline#enabled = 1
-"let g:airline#extensions#tabline#show_tab_nr = 1
-let g:airline#extensions#tabline#tab_nr_type = 1
-"let g:airline#extensions#tabline#show_tab_type = 1
-let g:airline#extensions#tabline#show_splits = 1 
-"let g:airline#extensions#tabline#left_sep = ' '
-"let g:airline#extensions#tabline#left_alt_sep = '|'
-let g:airline#extensions#tabline#show_buffers = 0
-"let g:airline#extensions#tabline#buf_label_first = 1
-let g:airline#extensions#tabline#tabs_label = ''
-let g:airline#extensions#tabline#formatter = 'unique_tail'
-let g:airline#extensions#tabline#tab_min_count = 2
-let g:airline#extensions#tabline#show_close_button = 0
-"let g:airline#extensions#tabline#exclude_preview = 0
-let g:airline#extensions#tabline#show_tab_count = 0
+""" lightline.vim
+set laststatus=2
+set noshowmode
 
-"airline sections
-function! LongPercent()
-    return line('.') * 100 / line('$') . '% of ' . line('$')
-endfunction
-function! ShortPercent()
-    return line('.') * 100 / line('$') . '%'
-endfunction
-function LineNColumn()
-    return line('.') . ',' . col('.')
-endfunction
-function! AirlineInit()
-    "call airline#parts#define_raw('longpercent',"%p%% fo %{line('$')}" )
-    call airline#parts#define_function('longpercent','LongPercent')
-    call airline#parts#define_function('shortpercent','ShortPercent')
-    call airline#parts#define_function('linecolumn','LineNColumn')
-    call airline#parts#define_minwidth('longpercent',100)
-    call airline#parts#define_minwidth('shortpercent',10)
-    call airline#parts#define_condition('shortpercent', 'winwidth(0) < 100')
-    call airline#parts#define_minwidth('linecolumn',10)
+"Filenames which should show reduced lightline bar
+let s:lightline_veto_filenames = 'NERD_tree'
 
-    let g:airline_section_a = airline#section#create(['mode'])
-    let g:airline_section_b = airline#section#create([''])
-    let g:airline_section_x = airline#section#create([''])
-    let g:airline_section_y = airline#section#create_right(['tagbar','filetype'])
-    let g:airline_section_z = airline#section#create_right(['longpercent','shortpercent','linecolumn'])
-    let g:airline_section_warning = airline#section#create([''])
+"""" Component Functions
+function! LightlineMode()
+  let fname = expand('%:t')
+  return fname =~# 'NERD_tree' ? '' : lightline#mode()
 endfunction
-autocmd User AirlineAfterInit call AirlineInit()
 
-""" Nerd Tree
+function! LightlineFilename()
+  return expand('%:t') =~# s:lightline_veto_filenames ? expand('%:p:h') : expand('%:t')
+endfunction
+
+function! LightlineModified()
+  return expand('%:t') =~# s:lightline_veto_filenames ? '' :
+\     &ft =~ 'help' ? '' : &modified ? '+' : &modifiable ? '' : '-'
+endfunction
+
+function! LightlineReadonly()
+  return expand('%:t') =~# s:lightline_veto_filenames ? '' : &readonly ? 'RO' : ''
+endfunction
+
+function! LightlineFiletype()
+  return expand('%:t') =~# s:lightline_veto_filenames ? '' : &ft!=#""?&ft:"no ft"
+endfunction
+
+function! LightlinePercent()
+    return expand('%:t') =~# s:lightline_veto_filenames ? '' : (100 * line('.') / line('$')) . '%'
+endfunction
+
+function! LightlineLineinfo()
+  return expand('%:t') =~# s:lightline_veto_filenames ? '' : printf('%d:%-2d', line('.'), col('.'))
+endfunction
+
+"""" Main config dicts
+let g:lightline = {
+\   'component_function': {
+\       'mode': 'LightlineMode',
+\       'filename': 'LightlineFilename',
+\       'modified': 'LightlineModified',
+\       'readonly': 'LightlineReadonly',
+\       'filetype': 'LightlineFiletype',
+\       'percent': 'LightlinePercent',
+\       'lineinfo': 'LightlineLineinfo',
+\   },
+\   'colorscheme': 'hc',
+\   'separator': {'left': "\ue0b0", 'right': "\ue0b2"},
+\   'subseparator': {'left': "\ue0b1", 'right': "\ue0b3"},
+\}
+"Colorscheme in autoload/lightline/colorscheme/hc.vim
+"Separators add powerline symbols
+
+let g:lightline.active = {
+\   'left': [
+\       ['mode', 'paste'],
+\       ['readonly', 'filename', 'modified'],
+\   ],
+\   'right': [
+\       [ 'lineinfo' ],
+\       [ 'percent' ],
+\       [ 'filetype' ],
+\   ]
+\}
+
+""" nerdtree
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-map <C-n> :NERDTreeToggle<CR>
 let NERDTreeQuitOnOpen = 1
 let NERDTreeMinimalUI = 1
 let NERDTreeDirArrows = 1
-"function DelayedSetVariables(timer)
-"    hi! airline_tabfill_to_airline_tabfill ctermfg=0
-"    hi! airline_tablabel_to_airline_tabsel ctermfg=1
-"endfunction
-"let timer=timer_start(500,'DelayedSetVariables')
+let NERDTreeShowHidden = 1
+noremap <C-n>      :<C-u>NERDTreeToggle<CR>
+noremap <Leader>nf :<C-u>NERDTreeFind<CR>
+noremap <Leader>nn :<C-u>NERDTreeFocus<CR>
+noremap <Leader>nc :<C-u>NERDTreeCWD<CR>
 
+autocmd BufEnter * if &filetype == 'nerdtree' | execute 'NERDTreeRefreshRoot' | endif
+
+"""nerdtree-git-plugin
+let g:NERDTreeGitStatusIndicatorMapCustom = {
+\   'Modified'  : 'Δ',
+\   'Staged'    : '●',
+\   'Untracked' : '+',
+\   'Renamed'   : '⇄',
+\   'Unmerged'  : '≠',
+\   'Deleted'   : '-',
+\   'Dirty'     : '×',
+\   'Ignored'   : '◌',
+\   'Clean'     : '✓',
+\   'Unknown'   : '?',
+\}
+
+"""vim-gitgutter
+highlight GitGutterAdd ctermbg=None ctermfg=2
+highlight GitGutterChange ctermbg=None ctermfg=3
+highlight GitGutterChange ctermbg=None ctermfg=1
+set updatetime=1000
 
 """ vim-latex
 let g:tex_flavor='latex'
@@ -223,6 +264,12 @@ let g:indentLine_color_term = 238
 let g:indentLine_char = '│'
 let g:indentLine_fileTypeExclude=['tex']
 
+""" vim-markdown
+let g:pandoc#modules#enabled=["folding","command","toc","spell","hypertext"]
+let g:pandoc#folding#fdc=0
+let g:pandoc#syntax#conceal#use=0
+au BufWinEnter *.md let &foldlevel = max(map(range(1, line('$')), 'foldlevel(v:val)'))
+
 "" Other
 "Compilation
 autocmd BufWritePost ~/.scripts/folders,~/.scripts/configs !bash ~/.scripts/shortcuts.sh
@@ -234,8 +281,8 @@ endfunction
 map <C-c> :call VimuxComp()<CR>
 map <C-z> :exe getline('.')[2:]<CR>
 
-execute pathogen#infect()
-call pathogen#helptags()
+"execute pathogen#infect()
+"call pathogen#helptags()
 
 "" Local config files
 silent! so .vimlocal
