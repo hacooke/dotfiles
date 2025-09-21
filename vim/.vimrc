@@ -46,6 +46,8 @@ highlight StatusLine ctermfg=8
 highlight StatusLineNC ctermfg=8
 highlight NonText ctermfg=8
 highlight SignColumn ctermbg=None ctermfg=8
+highlight DiffAdd ctermbg=85 guibg='SeaGreen1'
+highlight DiffText ctermfg=7 guifg='White'
 set fillchars=vert:\ ,fold:\ 
 
 "" Tab behaviour
@@ -151,25 +153,25 @@ let s:lightline_veto_filenames = 'NERD_tree'
 
 """" Component Functions
 function! LightlineMode()
-  let fname = expand('%:t')
-  return fname =~# 'NERD_tree' ? '' : lightline#mode()
+    let fname = expand('%:t')
+    return fname =~# 'NERD_tree' ? '' : lightline#mode()
 endfunction
 
 function! LightlineFilename()
-  return expand('%:t') =~# s:lightline_veto_filenames ? expand('%:p:h') : expand('%:t')
+    return expand('%:t') =~# s:lightline_veto_filenames ? expand('%:p:h') : expand('%:t')
 endfunction
 
 function! LightlineModified()
-  return expand('%:t') =~# s:lightline_veto_filenames ? '' :
-\     &ft =~ 'help' ? '' : &modified ? '+' : &modifiable ? '' : '-'
+      return expand('%:t') =~# s:lightline_veto_filenames ? '' :
+\         &ft =~ 'help' ? '' : &modified ? '+' : &modifiable ? '' : '-'
 endfunction
 
 function! LightlineReadonly()
-  return expand('%:t') =~# s:lightline_veto_filenames ? '' : &readonly ? 'RO' : ''
+    return expand('%:t') =~# s:lightline_veto_filenames ? '' : &readonly ? 'RO' : ''
 endfunction
 
 function! LightlineFiletype()
-  return expand('%:t') =~# s:lightline_veto_filenames ? '' : &ft!=#""?&ft:"no ft"
+    return expand('%:t') =~# s:lightline_veto_filenames ? '' : &ft!=#""?&ft:"no ft"
 endfunction
 
 function! LightlinePercent()
@@ -177,7 +179,23 @@ function! LightlinePercent()
 endfunction
 
 function! LightlineLineinfo()
-  return expand('%:t') =~# s:lightline_veto_filenames ? '' : printf('%d:%-2d', line('.'), col('.'))
+    return expand('%:t') =~# s:lightline_veto_filenames ? '' : printf('%d:%-2d', line('.'), col('.'))
+endfunction
+
+function! LightlineGitbranch()
+    if expand('%:t') =~# s:lightline_veto_filenames
+        return ''
+    endif
+    try
+        if exists('*FugitiveHead')
+            "let mark = ' '
+            let mark = ' '
+            let branch = FugitiveHead()
+            return branch !=# '' ? mark.branch : ''
+        endif
+    catch
+    endtry
+    return ''
 endfunction
 
 """" Main config dicts
@@ -190,6 +208,7 @@ let g:lightline = {
 \       'filetype': 'LightlineFiletype',
 \       'percent': 'LightlinePercent',
 \       'lineinfo': 'LightlineLineinfo',
+\       'gitbranch': 'LightlineGitbranch',
 \   },
 \   'colorscheme': 'hc',
 \   'separator': {'left': "\ue0b0", 'right': "\ue0b2"},
@@ -201,7 +220,7 @@ let g:lightline = {
 let g:lightline.active = {
 \   'left': [
 \       ['mode', 'paste'],
-\       ['readonly', 'filename', 'modified'],
+\       ['gitbranch', 'readonly', 'filename', 'modified'],
 \   ],
 \   'right': [
 \       [ 'lineinfo' ],
@@ -216,7 +235,7 @@ let NERDTreeQuitOnOpen = 1
 let NERDTreeMinimalUI = 1
 let NERDTreeDirArrows = 1
 let NERDTreeShowHidden = 1
-noremap <C-n>      :<C-u>NERDTreeToggle<CR>
+noremap <Leader>nt :<C-u>NERDTreeToggle<CR>
 noremap <Leader>nf :<C-u>NERDTreeFind<CR>
 noremap <Leader>nn :<C-u>NERDTreeFocus<CR>
 noremap <Leader>nc :<C-u>NERDTreeCWD<CR>
@@ -242,6 +261,8 @@ highlight GitGutterAdd ctermbg=None ctermfg=2
 highlight GitGutterChange ctermbg=None ctermfg=3
 highlight GitGutterChange ctermbg=None ctermfg=1
 set updatetime=1000
+"This controls both interval of gitgutter updating and interval of vim's
+"swap file updates (default 4000).
 
 """ vim-latex
 let g:tex_flavor='latex'
