@@ -264,20 +264,6 @@ set updatetime=1000
 "This controls both interval of gitgutter updating and interval of vim's
 "swap file updates (default 4000).
 
-""" vim-latex
-let g:tex_flavor='latex'
-"default:
-"let g:Tex_CompileRule_pdf = 'latexmk -g -pdf -pdflatex="pdflatex -interaction=nonstopmode -file-line-error-style -synctex=1 $*" -interaction=batchmode'
-let g:Tex_CompileRule_dvi = 'latexmk -synctex=1 -latex="latex -interaction=nonstopmode -file-line-error-style" $*'
-let g:Tex_FormatDependency_pdf = 'dvi,pdf'
-let g:Tex_CompileRule_pdf = 'dvipdfm $*.dvi'
-let g:Tex_DefaultTargetFormat = 'pdf'
-"let g:Tex_ViewRule_pdf = 'zathura'
-let theuniqueserv = expand("%:r")
-let g:Tex_ViewRule_pdf = 'zathura'
-let g:Tex_ViewRuleComplete_pdf = 'zathura -x "vim --servername '.theuniqueserv.' --remote +\%{line} \%{input}" $*.pdf 2>/dev/null &'
-let g:Tex_GotoError=0
-
 """ indentLine
 "let g:indentLine_setColors = 0
 "let g:indentLine_defaultGroup = 'SpecialKey'

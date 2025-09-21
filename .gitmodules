@@ -22,3 +22,18 @@
 [submodule "vim/.vim/pack/default/start/vim-fugitive"]
 	path = vim/.vim/pack/default/start/vim-fugitive
 	url = git@github.com:tpope/vim-fugitive
+[submodule "vim/.vim/pack/default/start/indentLine"]
+	path = vim/.vim/pack/default/start/indentLine
+	url = git@github.com:Yggdroot/indentLine
+[submodule "vim/.vim/pack/default/start/vim-surround"]
+	path = vim/.vim/pack/default/start/vim-surround
+	url = git@github.com:tpope/vim-surround
+[submodule "vim/.vim/pack/default/start/vim-repeat"]
+	path = vim/.vim/pack/default/start/vim-repeat
+	url = git@github.com:tpope/vim-repeat
+[submodule "vim/.vim/pack/default/start/vim-unimpaired"]
+	path = vim/.vim/pack/default/start/vim-unimpaired
+	url = git@github.com:tpope/vim-unimpaired
+[submodule "vim/.vim/pack/default/start/vim-commentary"]
+	path = vim/.vim/pack/default/start/vim-commentary
+	url = git@github.com:tpope/vim-commentary
