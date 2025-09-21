@@ -37,3 +37,9 @@
 [submodule "vim/.vim/pack/default/start/vim-commentary"]
 	path = vim/.vim/pack/default/start/vim-commentary
 	url = git@github.com:tpope/vim-commentary
+[submodule "vim/.vim/pack/default/start/emmet-vim"]
+	path = vim/.vim/pack/default/start/emmet-vim
+	url = git@github.com:mattn/emmet-vim
+[submodule "vim/.vim/pack/default/start/ale"]
+	path = vim/.vim/pack/default/start/ale
+	url = git@github.com:dense-analysis/ale

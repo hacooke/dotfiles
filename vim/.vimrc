@@ -126,6 +126,8 @@ noremap <Leader>h :<C-u>noh<CR>
 nnoremap <silent> <Leader>/ :execute 'vimgrep /'.@/.'/g %' <bar> copen<CR>
 " Ack for the last search.
 nnoremap <silent> <Leader>? :execute "Ack! " . substitute(substitute(substitute(@/, '\\\\<', '', ''), '\\\\>', '', ''), '\\\\v', '', '')<CR>
+" Show index for search
+set shortmess -=S
 
 "" Compiling
 autocmd QuickFixCmdPost [^l]* nested cwindow 3
@@ -182,6 +184,7 @@ function! LightlineLineinfo()
     return expand('%:t') =~# s:lightline_veto_filenames ? '' : printf('%d:%-2d', line('.'), col('.'))
 endfunction
 
+" Fugitive integration
 function! LightlineGitbranch()
     if expand('%:t') =~# s:lightline_veto_filenames
         return ''
@@ -198,6 +201,20 @@ function! LightlineGitbranch()
     return ''
 endfunction
 
+" ALE integration
+function! LightlineLinterrors() abort
+    if expand('%:t') =~# s:lightline_veto_filenames
+        return ''
+    endif
+    let l:counts = ale#statusline#Count(bufnr(''))
+    let l:all_errors = l:counts.error + l:counts.style_error
+    let l:all_non_errors = l:counts.total - l:all_errors
+    return l:counts.total == 0 ? '' : 
+    \   l:all_errors == 0 ? all_non_errors.' Warning'.(l:all_non_errors > 1 ? 's' : '') :
+    \   l:all_non_errors == 0 ? all_errors.' Error'.(l:all_errors > 1 ? 's' : '') :
+    \   printf('%dW %dE', all_non_errors, all_errors)
+endfunction
+
 """" Main config dicts
 let g:lightline = {
 \   'component_function': {
@@ -209,6 +226,7 @@ let g:lightline = {
 \       'percent': 'LightlinePercent',
 \       'lineinfo': 'LightlineLineinfo',
 \       'gitbranch': 'LightlineGitbranch',
+\       'linterrors': 'LightlineLinterrors',
 \   },
 \   'colorscheme': 'hc',
 \   'separator': {'left': "\ue0b0", 'right': "\ue0b2"},
@@ -223,9 +241,9 @@ let g:lightline.active = {
 \       ['gitbranch', 'readonly', 'filename', 'modified'],
 \   ],
 \   'right': [
-\       [ 'lineinfo' ],
-\       [ 'percent' ],
-\       [ 'filetype' ],
+\       ['lineinfo'],
+\       ['percent'],
+\       ['filetype', 'linterrors'],
 \   ]
 \}
 
@@ -271,11 +289,60 @@ let g:indentLine_color_term = 238
 let g:indentLine_char = '│'
 let g:indentLine_fileTypeExclude=['tex']
 
-""" vim-markdown
-let g:pandoc#modules#enabled=["folding","command","toc","spell","hypertext"]
-let g:pandoc#folding#fdc=0
-let g:pandoc#syntax#conceal#use=0
-au BufWinEnter *.md let &foldlevel = max(map(range(1, line('$')), 'foldlevel(v:val)'))
+""" ale
+let g:ale_completion_enabled=1
+let g:ale_virtualtext_cursor='current'
+let g:ale_detail_to_floating_preview=1
+let g:ale_hover_to_floating_preview=1
+let g:ale_floating_window_border=['│', '─', '╭', '╮', '╯', '╰', '│', '─']
+let g:ale_set_quickfix=1
+let g:ale_linters = {
+\   'python': ['flake8', 'mypy', 'jedils']
+\}
+let g:ale_fixers = {
+\   'python': ['black']
+\}
+" Mappings needed for ALE?
+" By defaule, [l, ]l navigate between linter errors/warnings
+nnoremap <Leader>ld :<C-u>ALEGoToDefinition<CR>
+nnoremap <Leader>lr :<C-u>ALERename<CR>
+nnoremap <Leader>lt :<C-u>ALEGoToTypeDefinition<CR>
+nnoremap <Leader>lh :<C-u>ALEHover<CR>
+nnoremap <Leader>lf :<C-u>ALEFindReferences -quickfix<CR>:copen<CR>
+" Auto hover? Can configure per filetype. Off for now as too distracting
+"autocmd CursorHold *.py :ALEHover
+"""" Info buffer (in development)
+let g:inspector_buffer_name='Inspector'
+function! CreateInspector()
+    "" TODO special logic here for placement etc
+    exec 'split '.g:inspector_buffer_name
+endfunction
+function! SetInspectorContent(content)
+    if bufnr(g:inspector_buffer_name) < 0
+        "Buffer doesn't exist, open it
+        call CreateInspector()
+    else 
+        call setbufvar(g:inspector_buffer_name, '&readonly', 0)
+        call setbufvar(g:inspector_buffer_name, '&modifiable', 1)
+        call deletebufline(g:inspector_buffer_name, 1, '$')
+    endif
+    call setbufline(g:inspector_buffer_name, 1, a:content)
+    call setbufvar(g:inspector_buffer_name, '&readonly', 1)
+    call setbufvar(g:inspector_buffer_name, '&modifiable', 0)
+    call setbufvar(g:inspector_buffer_name, '&modified', 0)
+endfunction
+function! InspectorHijackBuffer(name)
+    call SetInspectorContent(getbufline(a:name,1,'$'))
+    exec 'bdelete '.bufnr(a:name)
+endfunction
+function! InspectorHijackDelayed(name)
+    let s:old_eventignore = &eventignore
+    set eventignore=all
+    call timer_start(1, {-> InspectorHijackBuffer(a:name)})
+    let &eventignore = s:old_eventignore
+endfunction
+"Enable the above with this line:
+"autocmd BufCreate ALEPreviewWindow :call InspectorHijackDelayed('ALEPreviewWindow')
 
 "" Other
 "Compilation
