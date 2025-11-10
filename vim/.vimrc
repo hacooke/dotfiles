@@ -295,7 +295,7 @@ let g:ale_virtualtext_cursor='current'
 let g:ale_detail_to_floating_preview=1
 let g:ale_hover_to_floating_preview=1
 let g:ale_floating_window_border=['│', '─', '╭', '╮', '╯', '╰', '│', '─']
-let g:ale_set_quickfix=1
+let g:ale_set_quickfix=0
 let g:ale_linters = {
 \   'python': ['flake8', 'mypy', 'jedils']
 \}

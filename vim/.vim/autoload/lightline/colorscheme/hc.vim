@@ -17,6 +17,9 @@ let s:white = [ '#ffffff', 15 ]
 
 "Function to set colour from current Highlights (if desired)
 function! GetHighlightGroupColours(group, type)
+    if !exists("*hlget")
+        return a:type == 'fg' ? ['White', 1] : ['Black', 'NONE']
+    endif
     let hl = hlget(a:group)
     return [
     \   get(hl[0], 'gui'.a:type, a:type=='fg' ? 'White' : 'Black'),
