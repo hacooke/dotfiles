@@ -1,0 +1,2 @@
+#!/bin/bash
+offlineimap $1 -a aol -f Inbox,Archive,Sent,Spam,Trash

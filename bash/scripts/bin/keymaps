@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#swap alt and windows keys
+setxkbmap -option altwin:swap_alt_win
+#swap capslock and escape keys
+#setxkbmap -option caps:swapescape
+#OR set capslock to escape, no swap
+setxkbmap -option caps:escape
+#activate logitech rgb
+/usr/local/bin/keyledsd

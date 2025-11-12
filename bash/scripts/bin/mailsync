@@ -1,0 +1,21 @@
+#!/bin/bash
+instances=$(ps -ef | grep '[o]fflineimap' | wc -l)
+if (( $instances > 2 ))
+then
+    killall offlineimap && sleep 5
+fi    
+
+### Assume server is up. Somehow the ping failed at times when the sync still worked...
+#server=$([ "$1" == "cern" ] && echo "imap.cern.ch" || ([ "$1" == "aol" ] && echo "imap.aol.com" || echo "null"))
+#if [ "$server" == "null" ]; then exit 1; fi
+#server_status="$(ping -c3 $server >/dev/null 2>&1 && echo up || echo down)" 
+
+server_status="up"
+case $server_status in
+    'up')
+        /home/harry/bin/mailsync-$1 $2
+    ;;
+    'down')
+        echo "MAILSYNC: no connection to server"
+    ;;
+esac

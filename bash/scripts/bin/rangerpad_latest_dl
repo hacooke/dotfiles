@@ -1,0 +1,4 @@
+#!/bin/bash
+~/.config/i3/ddspawn rangerpad
+sleep 0.3
+xdotool search -name "rangerpad" type ",d"

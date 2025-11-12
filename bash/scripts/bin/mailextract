@@ -1,0 +1,4 @@
+#!/bin/bash
+neomutt -e "push LHXC596@student.bham.ac.uk<enter>lvj<save-entry>~/.tmp/mailrip/message<enter><enter>h<save-message>+cern/Deleted<enter>qq<enter>"
+mv ~/.tmp/mailrip/message/cur/* ~/Mail/cern/Inbox/new/
+rm -rf ~/.tmp/mailrip/message

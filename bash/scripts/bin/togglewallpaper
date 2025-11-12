@@ -1,0 +1,11 @@
+#!/bin/bash
+paper1='/home/harry/Pictures/desktop-photos/eventdisplay-cubism.png'
+paper2='/home/harry/Pictures/desktop-photos/HtoZZjj-cubism.png'
+
+if ! grep -Fxq "$paper1" ~/.currentwallpaper; then
+	feh --bg-fill $paper1
+	echo $paper1 > ~/.currentwallpaper
+else
+	feh --bg-fill $paper2
+	echo $paper2 > ~/.currentwallpaper
+fi

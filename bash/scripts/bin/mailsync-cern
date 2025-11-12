@@ -1,0 +1,2 @@
+#!/bin/bash
+offlineimap $1 -a cern -f 'INBOX,Archive,Sent Items,Junk E-Mail,Deleted Items,Icinga,eLogs,JIRA'

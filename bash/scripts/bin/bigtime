@@ -1,0 +1,2 @@
+#!/bin/bash
+urxvt -cr [00]#2f2f2f +bc -fn "xft:IosevkaPL:style=Regular:size=420,xft:IosevkaPL:style=Bold:size=400" -e "termclock $1 $2 & cpulimit --limit 1"

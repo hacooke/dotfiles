@@ -1,0 +1,25 @@
+#!/bin/bash
+
+basedir='/home/harry/Documents/phd/logs'
+file=`date +'%d%A.md' | tr '[:upper:]' '[:lower:]'`
+
+#Find date on most recent monday, to get folder name
+dayofweek=`expr $(date +'%u') - 1`
+folder=`date --date="$dayofweek days ago" +'%Y.%m.%d'`
+
+#check for case where week crosses the month boundary:
+daysfromfriday=`expr 4 - $dayofweek`
+mondaymonth=`date --date="$dayofweek days ago" +'%m'`
+fridaymonth=`date --date="+$daysfromfriday days" +'%m'`
+[[ $mondaymonth -eq $fridaymonth ]] || file="$(date +'%m.')$file"
+
+#check if file exists
+folderpath="$basedir/$folder"
+[[ -d $folderpath ]] || mkdir $folderpath
+cd $folderpath
+#filepath="$folderpath/$file"
+title="# Log for $(date +'%A %d %B %Y')"
+[[ -f $filepath ]] || echo "$title" > $file #path
+
+#open file
+$EDITOR $file #path

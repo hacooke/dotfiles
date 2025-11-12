@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "left" > ~/.externalmonitor_direction.txt
+
+~/bin/monoff
+sleep 1500ms
+~/bin/monon

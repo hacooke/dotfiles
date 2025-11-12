@@ -1,0 +1,8 @@
+#!/bin/bash
+for file in ~/.cron-{cern,aol}-{quick,full}.log
+do
+    echo -e "\e[01;00;32mReading \e[01;00;31m$file:\e[0;0m"
+    cat $file
+    echo -e "\e[01;00;32mPress any key to continue...\e[0;0m"
+    read 
+done

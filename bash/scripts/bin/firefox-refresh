@@ -1,0 +1,13 @@
+#!/bin/bash
+
+current_wid=$(xdotool getwindowfocus)
+
+wids=$(xdotool search --class "firefox")
+for wid in $wids; do
+	if [[ $(xdotool getwindowname $wid) == "refreshme - Mozilla Firefox" ]]; then
+		xdotool windowactivate $wid
+	fi
+done
+xdotool key F5
+
+xdotool windowactivate $current_wid 

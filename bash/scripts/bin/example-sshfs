@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sudo sshfs user@server:/path/to/dir/ /mnt/mnt-name/ -o allow_other -o reconnect,ServerAliveInterval=15,ServerAliveCountMax=3

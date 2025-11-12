@@ -1,0 +1,32 @@
+#!/bin/bash
+
+#identify forwarded mail and move it to special inbox
+cd ~/Mail/cern
+for file in $(grep -l -e "From: \"HXC596" ./Inbox/new/*)
+do
+    if (( $(grep -e "message/rfc822" "${file}" | wc -l) > 0 ))
+    then
+        mv $file ./Forwarded/new/
+    fi
+    #echo $search_res
+done
+
+#use neomutt to extract attachments from forwarded mail and send it to inbox
+while (( $(ls -1 ~/Mail/cern/Forwarded/new/ | wc -l) > 0 || $(ls -1 ~/Mail/cern/Forwarded/cur/ | wc -l) > 0 ))
+do
+    rm -rf ~/.tmp/mailrip/message
+    #copy actual email from attachment to temporary directory, and move shell email to Del.
+    neomutt -f ~/Mail/cern/Forwarded -e "push <enter>lvj<save-entry>~/.tmp/mailrip/message<enter><enter>h<save-message>+cern/Deleted<enter>qq<enter>"
+    
+    #Open the email in the temporary directory and toggle its read state (unread by def.)
+    neomutt -f ~/.tmp/mailrip/message -e "push L~R<enter>Nqq"
+
+    #Move email to inbox and delete temp. directory
+    mv ~/.tmp/mailrip/message/new/* ~/Mail/cern/Inbox/new/
+done
+
+#This should now work down to ensuring that the message is flagged as new in mutt's inbox
+#There has been some unexpected behaviour with the message directory being deleted when not
+#expected however... But it seems to work now.
+
+#For now just bind to \cF, but in future should get it working with the sync

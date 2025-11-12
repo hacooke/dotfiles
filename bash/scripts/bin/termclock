@@ -1,0 +1,10 @@
+#!/bin/bash
+#colour (from colour scheme, 0-9 available)
+a=${1:-2}
+#style (1 = bold, 5 = flashing)
+b=${2:-0}
+clear
+while true
+do
+    echo -e \\b\\b\\b\\b\\b\\b\\b\\b"\e[01;0${b};3${a}m"`date +%H:%M`'\e[0;0m'\\c sleep 5
+done
