@@ -1,0 +1,10 @@
+cff	~/.scripts/folders
+cfc	~/.scripts/configs
+cfb	~/.bashrc
+cfv	~/.vimrc
+cfr	~/.linkconfigs/ranger
+cfi	~/.linkconfigs/i3
+cfq	~/.config/qutebrowser/config.py
+cfm	~/.config/mutt/muttrc
+cfp	~/.linkconfigs/polybar
+cfx	~/.linkconfigs/Xresources
