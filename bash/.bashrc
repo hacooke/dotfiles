@@ -7,30 +7,43 @@
 #  ╚═╝╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝
 #                                                     
 # Author: Harry Cooke
-# Source: github.com/hacooke/dotfiles/.bashrc
+# Source: github.com/hacooke/dotfiles/bash/.bashrc
 #
 # Incomplete and outdated, needs a rebuild
+# TODO
+# + Remove/simplify/relocate conda logic
+# + Better prompt configuration
 
+bind -x '"":"tmux-sessionizer"'
+## Imports
+# Source global definitions
+include() {
+    if [ -f $1 ]; then
+        . $1
+    fi
+}
+include /etc/bashrc
+# > global definitions
+include $HOME/scripts/functions.sh
+# > provides pathensure
+include $HOME/scripts/shortcuts.sh
+# > provides various navigation aliases
+
+## Default programs
 export BROWSER="/usr/bin/qutebrowser"
 export EDITOR="/usr/bin/vim"
 export TERMINAL="/usr/bin/urxvt"
 
-# Source global definitions
-if [ -f /etc/bashrc ]; then
-	. /etc/bashrc
-fi
+## Globals
+export XDG_CONFIG_HOME="$HOME/.config"
 
-base_path="$HOME/.local/bin:$HOME/bin:$HOME/scripts/bin" 
-# User specific environment
-if ! [[ "$PATH" =~ "$add_to_path" ]]
-then
-    PATH="$base_path"
-fi
+## System path
 export PATH
+pathensure "$HOME/bin"
+pathensure "$HOME/.local/bin"
+pathensure "$HOME/scripts/bin"
 
-xset +fp $HOME/.local/share/fonts
-xset fp rehash
-
+## Aliases
 alias mutt='neomutt'
 alias conon='conda activate'
 alias conoff='conda deactivate'
@@ -40,17 +53,27 @@ alias gfullwarn='g++ -Wall -Wextra -Werror -Wfatal-errors -pedantic-errors -Wsha
 alias nw-restart='sudo ~/bin/network-restart'
 alias todo='task next +work'
 alias pls='sudo !!'
+alias info='info --vi-keys'
 
+## Xresources
+xrdb -merge ~/.Xresources
+
+## Miscellaneous
+### Fonts
+xset +fp $HOME/.local/share/fonts
+xset fp rehash
+
+### Conda
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/harry/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+__conda_setup="$("$HOME/anaconda3/bin/conda" 'shell.bash' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
 else
-    if [ -f "/home/harry/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/harry/anaconda3/etc/profile.d/conda.sh"
+    if [ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]; then
+        . "$HOME/anaconda3/etc/profile.d/conda.sh"
     else
-        export PATH="/home/harry/anaconda3/bin:$PATH"
+        pathensure "$HOME/anaconda3/bin"
     fi
 fi
 unset __conda_setup
@@ -97,19 +120,11 @@ function __ps1_update {
 #__ps1_update
 #PROMPT_COMMAND='__ps1_update'
 
+### Go
 export GOPATH=$HOME/go
-#export PATH=$PATH:$GOPATH/bin
 
+### Dircolors
 eval $(dircolors ~/.dircolors)
-
-#(cat ~/.config/wpg/sequences &)
-xrdb -merge ~/.Xresources
-
-#export PATH="/home/harry/anaconda3/condabin:/home/harry/anaconda3/bin:/home/harry/.local/bin:/home/harry/bin:/usr/share/Modules/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/var/lib/snapd/snap/bin:/home/harry/go/bin:/home/harry/go/bin:/home/harry/.vimpkg/bin"
-#export XDG_CONFIG_HOME='~/.config'
-source $HOME/scripts/shortcuts.sh
-
-alias info='info --vi-keys'
 
 # Manually construct PS1 to look like this?
 # harry  ~  dotfiles 
