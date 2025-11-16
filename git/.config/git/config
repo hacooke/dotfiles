@@ -1,0 +1,25 @@
+[user]
+	name = Harry Cooke
+	email = hcooke006@aol.com
+    username = hacooke
+[core]
+    editor = vim
+    excludesFile = ~/.config/git/ignore
+[color]
+	ui = true
+	diff = true
+	status = true
+[http]
+	emptyAuth = true
+	postBuffer = 1048576000
+[checkout]
+    defaultRemote = origin
+[push]
+	default = current
+    autoSetupRemote = true
+[init]
+	defaultBranch = main
+[diff]
+    tool = vimdiff
+[merge]
+    tool = vimdiff
