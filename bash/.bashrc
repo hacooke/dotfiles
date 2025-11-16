@@ -14,7 +14,6 @@
 # + Remove/simplify/relocate conda logic
 # + Better prompt configuration
 
-bind -x '"":"tmux-sessionizer"'
 ## Imports
 # Source global definitions
 include() {
@@ -54,6 +53,9 @@ alias nw-restart='sudo ~/bin/network-restart'
 alias todo='task next +work'
 alias pls='sudo !!'
 alias info='info --vi-keys'
+
+## Binds
+bind -x '"":"tmux-sessionizer"'
 
 ## Xresources
 xrdb -merge ~/.Xresources
