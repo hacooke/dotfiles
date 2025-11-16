@@ -116,6 +116,24 @@ fu! CustomFoldText()
 endf
 set foldtext=CustomFoldText()
 
+""" Comment based folding
+function! MultiCommentFold()
+    let line = getline(v:lnum)
+    let nextline = getline(v:lnum+1)
+    let comment = substitute(&commentstring, "%s", "", "")
+    let matchstring = '^\'.comment.'\{2,}'
+    if line =~ matchstring
+        return '>'.(matchend(line, matchstring)-1)
+    "alternatively, allow spaces between folds with the following
+    "if line =~ matchstring
+    "    return matchend(line, matchstring)-1
+    " 
+    "elseif (nextline =~ matchstring)
+    "    return matchend(nextline, matchstring)-2
+    else
+        return '='
+    endif
+endf
 "" Search
 set ignorecase
 set smartcase
