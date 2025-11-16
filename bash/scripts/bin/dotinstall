@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+: 'dotinstall - cross-platform declarative package installation tool
+
+Script to install packages defined via an installation script. Per-package
+scripts stored in $PKG_DIR/<package>/install.sh.
+Author: Harry Cooke
+'
+
+PKG_MANAGER_CHECK="$HOME/scripts/detect_pkg_manager.sh"
+PKG_DIR="$HOME/dotfiles/packages"
+DOTINSTALL_CMD="dotinstall"
+
+if [[ -z $1 ]]; then
+    echo "No package name provided." >&2
+    exit 1
+fi
+
+# Identify install command
+if [[ -z $PKG_INSTALL ]] && [[ -f $PKG_MANAGER_CHECK ]]; then
+    . $PKG_MANAGER_CHECK
+fi
+
+# Error if still undefined
+if [[ -z $PKG_INSTALL ]]; then
+    echo "PKG_INSTALL not set" >&2
+    exit 1
+fi
+
+# Check package directory exists
+if [[ ! -d $PKG_DIR ]]; then
+    echo "Package directory not found." >&2
+    exit 1
+fi
+
+create_install_script() {
+    local install_script=$1
+    local package=$2
+    cat << EOF > $install_script
+# dotinstall child script. Usage: $DOTINSTALL_CMD $package
+\$PKG_INSTALL $package
+
+# Install config from dotfiles
+# stow -d ~/dotfiles $package
+
+# Dependencies
+# $DOTINSTALL_CMD <otherpackage>
+EOF
+    vim $install_script
+}
+
+install_package() {
+    local package="$1"
+    local package_path="$PKG_DIR/$package"
+    local install_script="$package_path/install.sh"
+    # Look for package install script
+    if [[ ! -d $package_path ]] || [[ ! -f $install_script ]]; then
+        read -p "No install script found for $package. Create now? (Y/n) " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Nn]$ ]]; then
+            echo "$package: Nothing to install." >&2
+            return 1
+        fi
+        # Create script
+        [[ -d $package_path ]] || mkdir $package_path
+        create_install_script "$install_script" "$package"
+    fi
+    echo sourcing $install_script
+    . $install_script
+}
+
+install_all_packages() {
+    for package_dir in $(ls -1 -d $PKG_DIR/*/); do
+        package=$(basename $package_dir)
+        if grep -qP "^$DOTINSTALL_CMD .*$package.*$" $PKG_DIR/*/install.sh; then
+            echo "Skipping $package as it appears to be a dependency."
+            continue
+        fi
+        install_package $package
+    done
+}
+
+if [[ ${1^^} = "ALL" ]]; then
+    install_all_packages
+    exit 0
+fi
+
+for package in "$@"; do
+    install_package $package
+done
