@@ -1,0 +1,54 @@
+set sendmail = "msmtp -a cern"
+set from = "harry.cooke@cern.ch"
+
+# Set folders
+set spoolfile = "+cern/Inbox"
+set mbox = "+cern/Archive"
+set postponed = "+cern/Drafts"
+set record = "+cern/Sent"
+set trash = "+cern/Deleted"
+
+color status default green 
+
+#message colours
+color indicator bold cyan default
+color index_author yellow default "~A"
+color index_date magenta default
+color index_flags cyan default "~A"
+color index_subject green default "~A"
+
+color hdrdefault green default
+#white
+#black
+#green
+#magenta
+#blue
+#cyan
+#yellow
+#red
+#default
+
+
+macro index o "<shell-escape>mailsync-cern<enter>" "run offlineimap to sync mail for this account"
+macro index gi "<change-folder>+cern/Inbox<enter>"
+macro index ge "<change-folder>+cern/Icinga<enter>"
+macro index gl "<change-folder>+cern/eLogs<enter>"
+macro index ga "<change-folder>+cern/Archive<enter>"
+macro index gs "<change-folder>+cern/Sent<enter>"
+macro index gj "<change-folder>+cern/Spam<enter>"
+macro index gd "<change-folder>+cern/Deleted<enter>"
+
+#moving messages:
+macro index,pager S \
+  "<enter-command>set my_old_resolve=\$resolve noresolve<enter>\
+  <tag-prefix><clear-flag>n<enter-command>set resolve=\$my_old_resolve<enter>\
+  <save-message>+cern/Spam<enter>" \
+  "mark as read and move to spam folder"
+
+macro index,pager A \
+  "<save-message>+cern/Archive<enter>"  \
+  "move message to the archive"
+
+macro index,pager I \
+  "<save-message>+cern/Inbox<enter>"  \
+  "move message to the inbox"

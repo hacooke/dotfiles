@@ -1,0 +1,64 @@
+[general]
+accounts = cern, aol
+
+[Account cern]
+localrepository = cern-local
+remoterepository = cern-remote 
+
+[Account aol]
+localrepository = aol-local
+remoterepository = aol-remote
+
+[Account bham]
+localrepository = bham-local
+remoterepository = bham-remote
+
+[Repository cern-local]
+type = Maildir
+localfolders = ~/Mail/cern
+nametrans = lambda folder: folder.replace('Inbox','INBOX').replace('Deleted','Deleted Items').replace('Sent','Sent Items').replace('Spam','Junk E-Mail')
+
+[Repository cern-remote]
+type = IMAP
+sslcacertfile = /etc/ssl/certs/ca-bundle.crt
+remotehost = outlook.office365.com
+remoteuser = harry.cooke@cern.ch
+authmechanisms = XOAUTH2
+oauth2_request_url = https://login.microsoftonline.com/common/oauth2/v2.0/token
+oauth2_client_id = ###
+oauth2_client_secret = ###
+oauth2_refresh_token = ###
+
+#https://github.com/UvA-FNWI/M365-IMAP
+#^(see /usr/local/M365-IMAP)
+#https://www.reddit.com/r/emacs/comments/y3ycqp/trouble_with_mu4eofflineimapoffice365_setup/
+nametrans = lambda folder: folder.replace('INBOX','Inbox').replace(' Items','').replace('Junk E-Mail','Spam')
+#remotehost = imap.cern.ch
+
+[Repository aol-local]
+type = Maildir
+localfolders = ~/Mail/aol
+nametrans = lambda folder: folder.replace('Deleted','Trash')
+
+[Repository aol-remote]
+type = IMAP
+remotehost = imap.aol.com
+remoteuser = hcooke006
+remotepass = ###
+sslcacertfile = /etc/ssl/certs/ca-bundle.trust.crt
+ssl_version = tls1_2
+nametrans = lambda folder: folder.replace('Trash','Deleted')
+
+[Repository bham-local]
+type = Maildir
+localfolders = ~/Mail/bham
+
+[Repository bham-remote]
+type = IMAP
+auth_mechanisms = PLAIN
+ssl = yes
+remotehost = outlook.office365.com
+remoteuser = hxc596@student.bham.ac.uk
+remotepass = ###
+sslcacertfile = /etc/ssl/certs/ca-bundle.crt
+folderfilter = lambda folder: folder in [ 'Sent', 'INBOX', 'Archive' ]

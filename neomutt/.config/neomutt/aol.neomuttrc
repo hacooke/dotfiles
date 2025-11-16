@@ -1,0 +1,39 @@
+set sendmail = "msmtp -a aol"
+set from = "hcooke006@aol.com"
+
+set spoolfile = "+aol/Inbox"
+set mbox = "+aol/Archive"
+set postponed = "+aol/Drafts"
+set record = "+aol/Sent"
+set trash = "+aol/Deleted"
+
+color status default blue 
+
+color indicator bold cyan default
+color index_author yellow default "~A"
+color index_date magenta default
+color index_flags cyan default "~A"
+color index_subject blue default "~A"
+
+macro index o "<shell-escape>mailsync-aol<enter>"\
+    "run offlineimap to sync mail for this account"
+macro index gi "<change-folder>+aol/Inbox<enter>"
+macro index ga "<change-folder>+aol/Archive<enter>"
+macro index gs "<change-folder>+aol/Sent<enter>"
+macro index gj "<change-folder>+aol/Spam<enter>"
+macro index gd "<change-folder>+aol/Deleted<enter>"
+
+#moving messages:
+macro index,pager S \
+  "<enter-command>set my_old_resolve=\$resolve noresolve<enter>\
+  <tag-prefix><clear-flag>n<enter-command>set resolve=\$my_old_resolve<enter>\
+  <save-message>+aol/Spam<enter>" \
+  "mark as read and move to spam folder"
+
+macro index,pager A \
+  "<save-message>+aol/Archive<enter>"  \
+  "move message to the archive"
+
+macro index,pager I \
+  "<save-message>+aol/Inbox<enter>"  \
+  "move message to the inbox"

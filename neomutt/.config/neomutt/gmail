@@ -1,0 +1,16 @@
+# imap
+set imap_user = "harry.cooke.97@gmail.com"
+set imap_pass = ###
+
+#smtp
+set smtp_url = "smtp://harry.cooke.97@smtp.gmail.com:587/"
+set smtp_pass = "$imap_pass"
+
+#folders
+set spoolfile = "+INBOX"
+set mbox = "+[Gmail].all Mail"
+set postponed = "+[Gmail].All Mail"
+
+#settings
+set from = "$imap_user"
+set editor = "vim"
