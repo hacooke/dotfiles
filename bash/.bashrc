@@ -27,6 +27,8 @@ include $HOME/scripts/functions.sh
 # > provides pathensure
 include $HOME/scripts/shortcuts.sh
 # > provides various navigation aliases
+include $HOME/.config/system/config.sh
+# > system-specific variables
 
 ## Default programs
 export BROWSER="/usr/bin/qutebrowser"
