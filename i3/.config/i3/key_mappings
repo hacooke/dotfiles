@@ -1,0 +1,15 @@
+#!/bin/bash
+#swap alt and windows keys
+#setxkbmap -option altwin:swap_alt_win
+#swap capslock and escape keys
+#setxkbmap -option caps:swapescape
+#set alt to send F12 if pressed on its own (for tmux)
+#currently imagined to be the only xcape process running,
+#necessary to not duplicate the process
+[[ $(ps -C xcape | wc -l) == 1 ]] && xcape -e 'Alt_L=F12;Alt_R=F12'
+
+~/bin/keymaps
+
+killall inputplug
+sleep 1.5
+~/bin/inputplug -d -c ~/bin/on-new-keyboard
