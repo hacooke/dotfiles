@@ -1,0 +1,155 @@
+/******************************************************************************
+ * ROFI Color theme
+ * User: Rasi
+ * Copyright: Rasmus Steinke
+ ******************************************************************************/
+* {
+    selected-normal-foreground:  #000000;
+    foreground:                  #ffffff;
+    normal-foreground:           #ffffff;
+    alternate-normal-background: transparent;
+    red:                         rgba ( 220, 50, 47, 100 % );
+    selected-urgent-foreground:  #e53935;
+    blue:                        rgba ( 38, 139, 210, 100 % );
+    urgent-foreground:           #e53935;
+    alternate-urgent-background: transparent;
+    active-foreground:           transparent;
+    lightbg:                     transparent;
+    selected-active-foreground:  transparent;
+    alternate-active-background: transparent;
+    background:                  transparent;
+    bordercolor:                 #ffffff;
+    alternate-normal-foreground: @foreground;
+    normal-background:           transparent;
+    lightfg:                     transparent;
+    selected-normal-background:  #ffbc42;
+    border-color:                @foreground;
+    spacing:                     2;
+    separatorcolor:              #ffffff;
+    urgent-background:           transparent;
+    selected-urgent-background:  @selected-normal-background;
+    alternate-urgent-foreground: @urgent-foreground;
+    background-color:            transparent;
+    alternate-active-foreground: @active-foreground;
+    active-background:           transparent;
+    selected-active-background:  transparent;
+}
+#window {
+    background-color: transparent;
+    border:           0;
+    border-radius:    20px;
+    padding:          20;
+}
+#mainbox {
+    border:  0;
+    padding: 0;
+}
+#message {
+    border:       5px solid 10px 10px ;
+    border-color: @separatorcolor;
+    padding:      20px ;
+}
+#textbox {
+    text-color: @foreground;
+}
+#listview {
+    background-color: rgba (0,48,66,90%);
+    border:           3px;
+    border-radius:    0px 0px 10px 10px;
+    margin:  5px 0px 0px 0px;
+    padding:          10;
+    fixed-height: 0;
+    border-color: #ffffff;
+    spacing:      2px ;
+    scrollbar:    false;
+}
+#element {
+    border:  0;
+    padding: 1px ;
+}
+#element.normal.normal {
+    background-color: @normal-background;
+    text-color:       @normal-foreground;
+}
+#element.normal.urgent {
+    background-color: @urgent-background;
+    text-color:       @urgent-foreground;
+}
+#element.normal.active {
+    background-color: @active-background;
+    text-color:       @active-foreground;
+}
+#element.selected.normal {
+    background-color: @selected-normal-background;
+    text-color:       @selected-normal-foreground;
+}
+#element.selected.urgent {
+    background-color: @selected-urgent-background;
+    text-color:       @selected-urgent-foreground;
+}
+#element.selected.active {
+    background-color: @selected-active-background;
+    text-color:       @selected-active-foreground;
+}
+#element.alternate.normal {
+    background-color: @alternate-normal-background;
+    text-color:       @alternate-normal-foreground;
+}
+#element.alternate.urgent {
+    background-color: @alternate-urgent-background;
+    text-color:       @alternate-urgent-foreground;
+}
+#element.alternate.active {
+    background-color: @alternate-active-background;
+    text-color:       @alternate-active-foreground;
+}
+#scrollbar {
+    width:        4px ;
+    border:       0;
+    handle-width: 8px ;
+    padding:      0;
+}
+#mode-switcher {
+    border:       2px solid 0px 0px ;
+    border-color: @separatorcolor;
+}
+#button.selected {
+    background-color: @selected-normal-background;
+    text-color:       @selected-normal-foreground;
+}
+#button {
+    background-color: @background;
+    text-color:       @foreground;
+}
+#inputbar {
+    padding: 28px;
+    background-color: #008cffbb;
+    border: 2px 2px 2px 2px;
+    border-radius:  10px 10px 0px 0px;
+    border-color: #008cff;
+    spacing:    6px;
+    text-color: #00ffff;
+}
+#case-indicator {
+    spacing:    0;
+    text-color: @normal-foreground;
+}
+#entry {
+    spacing:    0;
+    text-color: #ffffff;
+}
+#prompt {
+    spacing:    50px;
+    text-color: @normal-foreground;
+    font: "Font Awesome 5 Free Solid 22";
+}
+#inputbar {
+    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
+}
+#textbox-prompt-colon {
+    expand:     false;
+    str:        "";
+    margin:     0px 0.3em 0em 0em ;
+    text-color: @normal-foreground;
+}
+
