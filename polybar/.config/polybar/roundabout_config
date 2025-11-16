@@ -1,0 +1,443 @@
+;==========================================================
+;
+;		        H A R R Y ' S
+;
+;   ██████╗  ██████╗ ██╗  ██╗   ██╗██████╗  █████╗ ██████╗
+;   ██╔══██╗██╔═══██╗██║  ╚██╗ ██╔╝██╔══██╗██╔══██╗██╔══██╗
+;   ██████╔╝██║   ██║██║   ╚████╔╝ ██████╔╝███████║██████╔╝
+;   ██╔═══╝ ██║   ██║██║    ╚██╔╝  ██╔══██╗██╔══██║██╔══██╗
+;   ██║     ╚██████╔╝███████╗██║   ██████╔╝██║  ██║██║  ██║
+;   ╚═╝      ╚═════╝ ╚══════╝╚═╝   ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝
+;
+; 		         C O N F I G
+;
+;=========================================================
+
+[colours]
+primary = #00444444
+secondary-alt = #ffbc42
+secondary = #008cff
+tertiary = #E53935
+text-focus = #ffffff
+text-std = #999999
+
+[bar/bar1]
+;monitor = ${env:MONITOR:}
+width = 100%
+height = 40
+fixed-center = true
+
+background = ${colours.primary}
+foreground = ${colours.text-focus}
+
+;font-0 = FontAwesome:pixelsize=40;0
+font-0 = SFNS Display:style=Regular:size=13;1
+font-1 = unifont:fontformat=truetype:size=18:antialias=false;0
+font-2 = siji:pixelsize=50;1
+
+;font-1 = System San Francisco Display:pixelsize=10;0
+font-3 = "Font Awesome 5 Free:style=Regular:pixelsize=16;1"
+font-4 = "Font Awesome 5 Free:style=Solid:pixelsize=16;1"
+font-5 = "Font Awesome 5 Brands:pixelsize=16;1"
+font-6 = "SVGFont 1:style=Regular:pixelsize=20;5"
+font-7 = "wifi1:size=25;5"
+font-8 = Iosevka:style=Regular:size=14
+
+modules-left = i3
+modules-center = cpu memory filesystem temperature 
+modules-right = wireless-network pulseaudio backlight battery date time powermenu
+#modules-left = i3
+#modules-center = date
+#modules-right = wireless-network pulseaudio backlight battery powermenu
+
+padding-left = 3
+padding-right = 3
+
+tray-position = right
+;tray-maxsize = 41
+tray-background = #000f0f0f
+tray-foreground= #000f0f0f
+
+scroll-up = i3wm-wsnext
+scroll-down = i3wm-wsprev
+
+overline-size = 2
+overline-color = ${colours.secondary}
+underline-size = 4
+underline-color = ${colours.secondary}
+
+;override-redirect = true
+;wm-restack = i3
+
+[bar/bar2]
+;monitor = ${env:MONITOR:}
+width = 100%
+height = 0
+fixed-center = true
+
+background = ${colours.primary}
+foreground = ${colours.text-focus}
+
+;font-0 = FontAwesome:pixelsize=40;0
+font-0 = SFNS Display:style=Regular:size=13;1
+font-1 = unifont:fontformat=truetype:size=18:antialias=false;0
+font-2 = siji:pixelsize=50;1
+
+;font-1 = System San Francisco Display:pixelsize=10;0
+font-3 = "Font Awesome 5 Free:style=Regular:pixelsize=14;1"
+font-4 = "Font Awesome 5 Free:style=Solid:pixelsize=14;1"
+font-5 = "Font Awesome 5 Brands:pixelsize=14;1"
+font-6 = "SVGFont 1:style=Regular:pixelsize=10;20"
+
+modules-left = i3
+modules-center = date
+modules-right = wireless-network pulseaudio backlight battery powermenu
+
+tray-position = right
+;tray-maxsize = 41
+tray-background = #000f0f0f
+tray-foreground= #000f0f0f
+
+scroll-up = i3wm-wsnext
+scroll-down = i3wm-wsprev
+
+overline-size = 2
+overline-color = ${colours.secondary}
+underline-size = 2
+underline-color = ${colours.secondary}
+
+[module/i3]
+type = internal/i3
+
+pin-workspaces = false
+;strip-wsnumbers = true
+
+ws-icon-0 = 1;
+ws-icon-1 = 2;
+ws-icon-2 = 3;
+ws-icon-3 = 4;
+ws-icon-4 = 5;%{T7}a
+ws-icon-5 = 6;
+ws-icon-6 = 7;
+ws-icon-7 = 8;
+ws-icon-8 = 9;
+ws-icon-9 = 10;
+ws-icon-10 = 11;
+
+index-sort = false 
+enable-scroll = false
+
+format = <label-state> 
+format-padding-right = 2
+
+label-unfocused = %icon%
+label-unfocused-foreground = ${colours.text-std}
+label-unfocused-padding = 3
+
+label-focused = %icon%
+label-focused-foreground = ${colours.text-focus}
+label-focused-padding = 2
+label-focused-margin = 1
+label-focused-underline-size = 1
+label-focused-underline = ${colours.secondary}
+
+label-urgent= %icon%
+label-urgent-foreground = ${colours.tertiary}
+label-urgent-padding = 1
+
+
+[module/filesystem]
+type = internal/fs
+
+; Mountpoints to display
+mount-0 = /
+
+label-mounted =  %{T9}%free%
+format-mounted-padding = 2
+
+; Seconds to sleep between updates
+; Default: 30
+; interval = 10
+
+; Display fixed precision values
+; Default: false
+fixed-values = true
+
+; Spacing between entries
+; Default: 2
+spacing = 6
+
+[module/filesystem2]
+type = internal/fs
+
+; Mountpoints to display
+mount-0 = /media/<my_name>/Data
+
+label-mounted =  %free%
+format-mounted-padding = 2
+
+; Seconds to sleep between updates
+; Default: 30
+; interval = 10
+
+; Display fixed precision values
+; Default: false
+fixed-values = true
+
+; Spacing between entries
+; Default: 2
+spacing = 6
+
+[module/cpu]
+type = internal/cpu
+
+interval = 1
+
+format = <label> <ramp-coreload>
+format-padding = 2
+
+label =  %{T9}%percentage%%
+
+ramp-coreload-0 = ▁
+ramp-coreload-0-font = 2
+ramp-coreload-0-foreground = ${colours.text-focus}
+ramp-coreload-1 = ▂
+ramp-coreload-1-font = 2
+ramp-coreload-1-foreground = ${colours.text-focus}
+ramp-coreload-2 = ▃
+ramp-coreload-2-font = 2
+ramp-coreload-2-foreground = ${colours.text-focus}
+ramp-coreload-3 = ▄
+ramp-coreload-3-font = 2
+ramp-coreload-3-foreground = ${colours.text-focus}
+ramp-coreload-4 = ▅
+ramp-coreload-4-font = 2
+ramp-coreload-4-foreground = ${colours.secondary}
+ramp-coreload-5 = ▆
+ramp-coreload-5-font = 2
+ramp-coreload-5-foreground = ${colours.secondary}
+ramp-coreload-6 = ▇
+ramp-coreload-6-font = 2
+ramp-coreload-6-foreground = ${colours.secondary-alt}
+ramp-coreload-7 = █
+ramp-coreload-7-font = 2
+ramp-coreload-7-foreground = ${colours.secondary-alt}
+
+[module/memory-custom]
+type = custom/script
+exec = ~/.config/polybar/scripts/memory.sh
+format-font = 9
+
+[module/memory]
+type = internal/memory
+
+units = false
+interval = 1
+
+format = <label>
+format-padding = 2
+
+label =  %{T9}%gb_used%(%percentage_used%%)
+
+
+[module/temperature]
+type = internal/temperature
+
+interval = 1
+
+thermal-zone = 0
+
+warn-temperature = 74
+
+format = <ramp> <label>
+format-padding = 2
+
+format-warn = <ramp> <label-warn>
+format-warn-padding = 2
+
+label = %temperature-c%
+label-font = 9
+
+label-warn = %temperature-c%
+label-warn-font = 9
+label-warn-foreground = #e4b226
+
+ramp-0 = 
+ramp-1 = 
+ramp-2 = 
+ramp-3 = 
+ramp-4 = 
+
+
+[module/date]
+type = internal/date
+
+interval = 1
+
+date = %a%{T1} %{T9}%b%{T1} %{T9}%d
+
+date-alt = %A, %d %B %Y
+
+format = <label>
+format-font = 9
+format-padding = 1
+
+label = %date%
+
+[module/time]
+type = internal/date
+
+time = %H:%M
+time-alt = %H:%M:%S
+
+format = <label>
+format-font = 9
+format-padding = 1
+
+label = %time%
+
+[module/battery]
+; Note - if battery isn't showing, try BAT0 or BAT1, etc.
+type = internal/battery
+
+full-at = 95
+
+battery = BAT0
+adapter = ACAD
+
+poll-interval = 5
+
+format-charging = <animation-charging> <label-charging>
+format-charging-padding = 2
+
+format-discharging = <ramp-capacity> <label-discharging>
+format-discharging-padding = 2
+
+format-full = <ramp-capacity> <label-full>
+format-full-padding = 2
+
+label-charging = %percentage%%
+label-charging-font = 9
+
+label-discharging = %percentage%%
+label-discharging-font = 9
+
+label-full = %percentage%%
+label-full-font = 9
+
+ramp-capacity-0 = 
+ramp-capacity-1 = 
+ramp-capacity-2 = 
+ramp-capacity-3 = 
+ramp-capacity-4 = 
+
+animation-charging-0 = 
+animation-charging-1 = 
+animation-charging-2 = 
+animation-charging-3 = 
+animation-charging-4 = 
+animation-charging-framerate = 500
+
+
+[module/backlight]
+type = internal/backlight
+
+card = intel_backlight
+
+format = <label>
+format-padding = 2
+
+label =  %{T9}%percentage%% %{T-}
+
+
+[module/pulseaudio]
+type = internal/pulseaudio
+; List sinks via `pactl list sinks` and look at the Name field
+
+sink = alsa_output.pci-0000_00_1b.0.analog-stereo
+;interval = 1
+
+format-volume-padding = 2
+format-volume = <ramp-volume> %{T9}<label-volume>%{T-}
+ramp-volume-0 = 
+ramp-volume-1 = 
+ramp-volume-2 = 
+
+format-muted-padding = 2
+label-muted =  0%
+
+
+[module/powermenu]
+font-0 = Iosevka:style=Regular:size=14
+type = custom/menu
+
+label-open =   
+
+label-close = cancel
+label-close-font = 9
+
+label-close-background = #000f0f0f
+label-close-foreground = #ffeefc
+label-open-padding-left = 4
+label-open-padding-right = 3
+label-close-padding = 3
+
+menu-0-0 = lock
+menu-0-0-font = 9
+menu-0-0-exec = ~/scripts/lock.sh
+menu-0-0-background = #000f0f0f
+menu-0-0-foreground = #c05c47
+menu-0-0-padding-right = 3
+
+menu-0-1 = reboot
+menu-0-1-font = 9
+menu-0-1-exec = menu-open-1
+menu-0-1-background = #000f0f0f
+menu-0-1-foreground = #c05c47
+menu-0-1-padding-right = 3
+
+menu-0-2 = power off
+menu-0-2-font = 9
+menu-0-2-exec = menu-open-2
+menu-0-2-background = #000f0f0f
+menu-0-2-foreground = #c05c47
+menu-0-2-padding-right = 3
+
+menu-1-0 = reboot?  
+menu-1-0-font = 9
+menu-1-0-exec = reboot
+menu-1-0-background = #000f0f0f
+menu-1-0-foreground = #e4b226
+menu-1-0-padding-right = 3
+
+menu-2-0 = power off?  
+menu-2-0-font = 9
+menu-2-0-exec = poweroff
+menu-2-0-background = #000f0f0f
+menu-2-0-foreground = #e4b226
+menu-2-0-padding-right = 3
+
+
+[module/wireless-network]
+type = internal/network
+
+; Look at ifconfig for interface
+interface = wlo1
+
+;format-connected = %{A1:urxvt -e nmtui:} <label-connected>%{A}
+format-connected = %{A1:urxvt -e nmtui:}<ramp-signal> %{T9}<label-connected>%{T-}%{A}
+format-connected-padding = 2
+
+format-disconnected = %{A1:urxvt -e nmtui:}%{T9}<label-disconnected>%{T-}%{A}
+format-disconnected-padding = 2
+
+label-connected = %essid%
+
+label-disconnected =  None
+
+ramp-signal-0 = 
+ramp-signal-1 = 
+ramp-signal-2 = 
+ramp-signal-foreground = ${colours.text-focus}
+
+; vim:ft=dosini
