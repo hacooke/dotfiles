@@ -1,0 +1,126 @@
+colors:
+    statusbar:
+        caret:
+            bg: "#f11d50"
+            fg: "#fffcf5"
+            selection:
+                bg: "#1aa6f1"
+                fg: "#fffcf5"
+        command:
+            bg: "#ff2817"
+            fg: "#fffcf5"
+            private:
+                bg: "black"
+        insert:
+            bg: "#359c3c"
+            fg: "#fffcf5"
+        normal:
+            bg: "#2f2f2f"
+            fg: "#fffcf5"
+        private:
+            bg: "#2f2f2f"
+            fg: "#fffcf5"
+        progress:
+            bg: "#fffcf5"
+        url:
+            fg: "#fffcf5"
+            error:
+                fg: "#fba524"
+            hover:
+                fg: "#ff421b"
+            success:
+                http:
+                    fg: "#359c3c"
+                https:
+                    fg: "#fffcf5"
+            warn:
+                fg: "#ffda1c"
+    tabs:
+        bar:
+            bg: "#2f2f2f"
+        even:
+            fg: "#fffcf5"
+            bg: "#2f2f2f"
+        indicator:
+            error: "#fba524"
+            start: "#ff421b"
+            stop: "#359c3c"
+        odd:
+            fg: "#fffcf5"
+            bg: "#2f2f2f"
+        selected:
+            even:
+                bg: "#ff2817"
+                fg: "#fffcf5"
+            odd:
+                bg: "#ff2817"
+                fg: "#fffcf5"
+
+    completion:
+        category:
+            bg: "#ff2817"
+            fg: "#fffcf5"
+            border:
+                bottom: "#2f2f2f"
+                top: "#1aa6f1"
+        even:
+            bg: "#2f2f2f"
+        odd:
+            bg: "#2f2f2f"
+        item:
+            selected:
+                bg: "#ff421b"
+                fg: "#fffcf5"
+                border:
+                    bottom: "#ff421b"
+                    top: "#ff421b"
+        match:
+            fg: "#359c3c"
+        scrollbar:
+            bg: "#fffcf5"
+            fg: "#2f2f2f"
+    downloads:
+        bar:
+            bg: "#2f2f2f"
+        error:
+            fg: "#fffcf5"
+            bg: "#fba524"
+        start:
+            fg: "#fffcf5"
+            bg: "#f11d50"
+        stop:
+            fg: "#fffcf5"
+            bg: "#359c3c"
+    hints:
+        fg: "#fffcf5"
+        bg: "#2f2f2f"
+        match:
+            fg: "#ff2817"
+    keyhint:
+        fg: "#fffcf5"
+        bg: "#2f2f2f"
+        suffix:
+            fg: "#ff2817"
+    messages:
+        error:
+            fg: "#fffcf5"
+            bg: "#fba524"
+            border: "#fba524"
+        info:
+            fg: "#fffcf5"
+            bg: "#359c3c"
+            border: "#359c3c"
+        warning:
+            fg: "#fffcf5"
+            bg: "#ffda1c"
+            border: "#ffda1c"
+    prompts:
+        fg: "#fffcf5"
+        bg: "#2f2f2f"
+        border: "#2f2f2f"
+        selected:
+            bg: "#ff2817"
+    webpage:
+        bg: "#fffcf5"
+hints:
+    border: "1px solid #fffcf5"
