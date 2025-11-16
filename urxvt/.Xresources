@@ -1,0 +1,53 @@
+! Fonts {{{
+Xft.antialias: true
+Xft.hinting:   true
+Xft.rgba:      rgb
+Xft.hintstyle: hintfull
+Xft.dpi:       135
+! }}}
+
+! Colours:
+*.foreground:   #fffcf5
+*.background:   #2f2f2f
+*.cursorColor:  #b9b9b9
+*.color0:       #2f2f2f
+*.color1:       #ff2817
+*.color2:       #359c3c
+*.color3:       #fba524
+*.color4:       #ff421b
+*.color5:       #f11d50
+*.color6:       #1aa6f1
+*.color7:       #f1e6df
+*.color8:       #484848
+*.color9:       #ff240b
+*.color10:       #37d842
+*.color11:       #ffda1c
+*.color12:       #ff4910
+*.color13:       #ff145e
+*.color14:       #10ddff
+*.color15:       #fffcf5
+
+URxvt.font: xft:IosevkaPL:style=Regular:size=10:minspace=False, xft:DejaVu Sans:style=Regular:size=8
+URxvt.boldFont: xft:Iosevka:style=Bold:size=10
+URxvt.italicFont: xft:Iosevka:style=Italic:size=10
+URxvt.boldItalicFont: xft:Iosevka:style=Bold Italic:size=10
+URxvt.letterSpace: 0
+URxvt.lineSpace: 0
+URxvt.cursorBlink: true
+URxvt.cursorUnderline: false
+URxvt.saveline: 2048
+URxvt.scrollBar: false
+URxvt.scrollBar_right: false
+URxvt.scrollBar_floating: true
+URxvt.urgentOnBell: true
+URxvt.depth: 32
+URxvt.iso14755: false
+URxvt.background: [85]#2f2f2f
+URxvt.perl-ext-common: font-size,xresources-256
+
+URxvt.color130: #fba524
+URxvt.color88: #fba524
+
+! allow C-S-x mappings in vim for all letters
+!URxvt*VT100.translations: #override Ctrl ~Meta Shift <Key>a: string(0x1b) string("[65;5u") 
+!URxvt*translations: #override Ctrl ~Meta Shift <Key>a: string(0x1b) string("[65;5u") 

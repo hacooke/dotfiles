@@ -1,0 +1,64 @@
+! Fonts {{{
+Xft.antialias: true
+Xft.hinting:   true
+Xft.rgba:      rgb
+Xft.hintstyle: hintfull
+Xft.dpi:       135
+! }}}
+
+! special
+*.foreground:   #b9b9b9
+*.background:   #525150
+*.cursorColor:  #b9b9b9
+
+! black
+*.color0:       #ffffff
+*.color8:       #5a7b8c
+
+! red
+*.color1:       #ffbc42
+*.color9:       #ffce75
+
+! green
+*.color2:       #008cff
+*.color10:      #45abff
+
+! yellow
+*.color3:       #875fff
+*.color11:      #a78aff
+
+! blue
+*.color4:       #b5446e
+*.color12:      #c97795
+
+! magenta
+*.color5:       #45983c
+*.color13:      #77b471
+
+! cyan
+*.color6:       #008cff
+*.color14:      #45abff
+
+! white
+*.color7:       #cd6d00
+*.color15:      #f68400
+
+URxvt.font: xft:Iosevka\ Term:style=Regular:size=10
+URxvt.boldFont: xft:Iosevka\ Term:style=Bold:size=10
+URxvt.italicFont: xft:Iosevka\ Term:style=Italic:size=10
+URxvt.boldItalicFont: xft:Iosevka\ Term:style=Bold Italic:size=10
+URxvt.letterSpace: 0
+URxvt.lineSpace: 0
+URxvt.geometry: 92x24
+URxvt.internalBorder: 2
+URxvt.cursorBlink: true
+URxvt.cursorUnderline: false
+URxvt.saveline: 2048
+URxvt.scrollBar: false
+URxvt.scrollBar_right: false
+URxvt.urgentOnBell: true
+URxvt.depth: 32
+URxvt.iso14755: false
+URxvt.background: [85]#515250
+
+URxvt.perl-ext-common: font-size

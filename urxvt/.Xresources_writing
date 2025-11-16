@@ -1,0 +1,70 @@
+! Fonts {{{
+Xft.antialias: true
+Xft.hinting:   true
+Xft.rgba:      rgb
+Xft.hintstyle: hintfull
+Xft.dpi:       135
+! }}}
+
+! Colours:
+! special
+*.foreground:   #515151
+*.background:   #f2f0ec
+!*.background:   #ede7d7
+*.cursorColor:  #515151
+
+! black
+*.color0:       #2d2d2d
+*.color8:       #747369
+
+! red
+*.color1:       #f2777a
+*.color9:       #f2777a
+
+! green
+*.color2:       #99cc99
+*.color10:      #99cc99
+
+! yellow
+*.color3:       #ffcc66
+*.color11:      #ffcc66
+
+! blue
+*.color4:       #6699cc
+*.color12:      #6699cc
+
+! magenta
+*.color5:       #cc99cc
+*.color13:      #cc99cc
+
+! cyan
+*.color6:       #66cccc
+*.color14:      #66cccc
+
+! white
+*.color7:       #d3d0c8
+*.color15:      #f2f0ec
+
+URxvt.font: xft:Go Mono for Powerline:style=Regular:size=9:minspace=False, xft:DejaVu Sans:style=Regular:size=8
+URxvt.boldFont: xft:Go Mono for Powerline:style=Bold:size=9
+URxvt.italicFont: xft:Go Mono for Powerline:style=Italic:size=9
+URxvt.boldItalicFont: xft:Go Mono for Powerline:style=Bold Italic:size=9
+URxvt.letterSpace: 0
+URxvt.lineSpace: 0
+URxvt.cursorBlink: true
+URxvt.cursorUnderline: false
+URxvt.saveline: 2048
+URxvt.scrollBar: false
+URxvt.scrollBar_right: false
+URxvt.scrollBar_floating: true
+URxvt.urgentOnBell: true
+URxvt.depth: 32
+URxvt.iso14755: false
+URxvt.perl-ext-common: font-size,xresources-256
+
+URxvt.color130: #fba524
+URxvt.color88: #fba524
+
+! allow C-S-x mappings in vim for all letters
+!URxvt*VT100.translations: #override Ctrl ~Meta Shift <Key>a: string(0x1b) string("[65;5u") 
+!URxvt*translations: #override Ctrl ~Meta Shift <Key>a: string(0x1b) string("[65;5u") 
