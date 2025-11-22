@@ -1,0 +1,102 @@
+@define-color base00 #272e33; @define-color base01 #2e383c;
+@define-color base02 #414b50; @define-color base03 #859289;
+@define-color base04 #9da9a0; @define-color base05 #d3c6aa;
+@define-color base06 #edeada; @define-color base07 #fffbef;
+
+@define-color base08 #e67e80; @define-color base09 #e69875;
+@define-color base0A #dbbc7f; @define-color base0B #a7c080;
+@define-color base0C #83c092; @define-color base0D #7fbbb3;
+@define-color base0E #d699b6; @define-color base0F #9da9a0;
+
+* {
+    border: none;
+    font-family: "IosevkaTerm Nerd Font Propo";
+    font-weight: normal;
+    font-size: 16px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: rgba(0,0,0,1);
+    background: linear-gradient(180deg,rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
+}
+
+tooltip {
+    background-color: @base00;
+    font-size: 2px;
+    color: @base05;
+}
+
+tooltip label {
+    margin: 2px;
+}
+
+window#waybar.empty #window {
+    font-size: 0px;
+    background-color: transparent;
+}
+
+.modules-right {
+    margin-right: 20px;
+}
+
+.modules-right :last-child {
+    margin-right: 0px;
+}
+
+.modules-left {
+    margin-left: 20px;
+}
+
+.modules-left :last-child {
+    margin-left: 0px;
+}
+
+.module {
+    padding: 0px 10px;
+    margin: 0px 4px;
+    background-color: transparent;
+    border-radius: 6px;
+    color: white;
+}
+
+.modules-right .module {
+    font-size: 20px;
+}
+
+#workspaces {
+    padding: 0px;
+}
+
+#workspaces button {
+    padding: 0px 6px;
+    margin: 0px 4px;
+    background-color: transparent;
+    border-radius: 6px;
+    color: white;
+    font-size: 0px;
+}
+
+#workspaces button.empty {
+    background-color: transparent;
+    color: @base01;
+}
+
+#workspaces button.active {
+    color: @base09;
+}
+
+#workspaces :first-child {
+    margin-left: 0px;
+}
+
+#workspaces :last-child {
+    margin-right: 0px;
+}
+
+#custom-cpucores {
+    font-size: 16px;
+    border-bottom: 1px solid white;
+    padding: 0px;
+    border-radius: 0px;
+}
