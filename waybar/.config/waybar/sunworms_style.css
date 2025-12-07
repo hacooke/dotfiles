@@ -1,0 +1,186 @@
+@define-color base00 #272e33; @define-color base01 #2e383c;
+@define-color base02 #414b50; @define-color base03 #859289;
+@define-color base04 #9da9a0; @define-color base05 #d3c6aa;
+@define-color base06 #edeada; @define-color base07 #fffbef;
+
+@define-color base08 #e67e80; @define-color base09 #e69875;
+@define-color base0A #dbbc7f; @define-color base0B #a7c080;
+@define-color base0C #83c092; @define-color base0D #7fbbb3;
+@define-color base0E #d699b6; @define-color base0F #9da9a0;
+
+* {
+    border: none;
+    min-height: 0;
+    font-family: "M+1Code Nerd Font Propo";
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: -0.5px;
+    padding: 0px;
+    margin: 2px;
+}
+
+window#waybar {
+    background: @base00;
+    border-radius: 4px;
+}
+
+tooltip {
+    background-color: @base00;
+    font-size: 2px;
+    color: @base05;
+}
+
+tooltip label {
+    margin: 2px;
+}
+
+window#waybar.empty #window {
+    font-size: 0px;
+    background-color: transparent;
+}
+
+#mpris,
+#window,
+#clock,
+#custom-arrow-left,
+#temperature,
+#cava,
+#tray,
+#cpu,
+#backlight-slider,
+#pulseaudio-slider,
+#memory,
+#battery,
+#network,
+#idle_inhibitor,
+#wireplumber {
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+#image {
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+#workspaces {
+    background-color: @base00;
+    border-radius: 4px;
+}
+
+#workspaces button {
+    all: initial;
+    min-width: 0;
+    box-shadow: inset 0 -3px transparent;
+    color: @lavender;
+    padding: 3px 4px;
+    background-color: @base00;
+    border-radius: 4px;
+}
+
+#workspaces button.active {
+    color: @base05;
+    background-color: @base01;
+}
+
+#workspaces button.urgent {
+    background-color: @base01;
+    color: @base0A;
+}
+
+#cava.silent,
+#workspaces button.empty {
+    background-color: transparent;
+    color: transparent;
+}
+
+#clock,
+#mpris,
+#window,
+#taskbar button,
+#image,
+#idle_inhibitor,
+#temperature,
+#window,
+#cpu,
+#backlight-slider,
+#pulseaudio-slider,
+#memory,
+#network,
+#wireplumber,
+#battery,
+#tray {
+    background-color: @base01;
+    color: @base05;
+}
+
+#pulseaudio-slider slider,
+#backlight-slider slider {
+    min-height: 0px;
+    min-width: 0px;
+    opacity: 1;
+    background-image: none;
+    border: none;
+    box-shadow: none;
+    background: @base00;
+    color: @base05;
+}
+
+#pulseaudio-slider trough,
+#backlight-slider trough {
+    min-height: 4px;
+    border-radius: 4px;
+    background: @base03;
+}
+
+#pulseaudio-slider highlight,
+#backlight-slider highlight {
+    min-height: 4px;
+    border-radius: 4px;
+    background: @base05;
+}
+
+#backlight-slider:hover,
+#pulseaudio-slider:hover {
+    min-width: 100px;
+    min-height: 4px; 
+    background-color: @base01;
+}
+
+#cava {
+    background-color: @base00;
+    color: @base05;
+    padding-right: 0px;
+    padding-left: 6px;
+}
+
+#taskbar button {
+    padding-left: 1px;
+    padding-right: 1px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+#taskbar button.active {
+    background-color: @base02;
+}
+
+#temperature.critical,
+#cpu.critical,
+#memory.critical {
+    color: @base0A;
+}
+
+#battery.warning,
+#battery.critical,
+#battery.urgent {
+    color: @base0A;
+}
+
+#window {
+    min-width: 20px;
+}
+
+#cava {
+    min-width: 20px;
+}

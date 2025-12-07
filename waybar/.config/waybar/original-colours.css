@@ -1,0 +1,8 @@
+@define-color fg-main  #f1e6df;
+@define-color fg-alt   #2f2f2f;
+@define-color bg-main  #2f2f2f;
+@define-color bg-alt   #484848;
+@define-color bg-hover #555555;
+@define-color hl-main  #ff240b;
+@define-color warning  #fba524;
+@define-color error    #f11d50;

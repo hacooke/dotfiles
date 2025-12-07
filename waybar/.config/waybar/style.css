@@ -1,12 +1,4 @@
-@define-color base00 #272e33; @define-color base01 #2e383c;
-@define-color base02 #414b50; @define-color base03 #859289;
-@define-color base04 #9da9a0; @define-color base05 #d3c6aa;
-@define-color base06 #edeada; @define-color base07 #fffbef;
-
-@define-color base08 #e67e80; @define-color base09 #e69875;
-@define-color base0A #dbbc7f; @define-color base0B #a7c080;
-@define-color base0C #83c092; @define-color base0D #7fbbb3;
-@define-color base0E #d699b6; @define-color base0F #9da9a0;
+@import "colours.css";
 
 * {
     border: none;
@@ -17,13 +9,13 @@
 }
 
 window#waybar {
-    background-color: @base00;
+    background-color: @bg-main;
 }
 
 tooltip {
-    background-color: @base00;
+    background-color: @bg-main;
     font-size: 2px;
-    color: @base05;
+    color: @bg-main;
 }
 
 tooltip label {
@@ -55,17 +47,17 @@ window#waybar.empty #window {
     margin: 4px 4px;
     background-color: transparent;
     border-radius: 6px;
-    color: white;
+    color: @fg-main;
 }
 
 .modules-right .module {
-    background-color: @base01;
+    background-color: @bg-alt;
 }
 
 .modules-right .module:hover,
 .modules-center .module:hover
 {
-    background-color: @base02;
+    background-color: @bg-hover;
 }
 
 .modules-right .module {
@@ -73,30 +65,33 @@ window#waybar.empty #window {
 }
 
 #workspaces {
-    padding: 0px;
+    padding: 0px 8px;
+    background-color: @bg-alt;
+    border-radius: 50px;
+    margin: 6px 0px;
 }
 
 #workspaces button {
-    padding: 3px 5px;
-    margin: 1px 2px;
+    padding: 0;
+    margin: 0 1px;
     border-radius: 6px;
-    color: white;
-    background-color: @base01;
+    color: @fg-main;
+    background-color: transparent;
     font-weight: bold;
 }
 
 #workspaces button.empty {
     background-color: transparent;
-    color: transparent;
+    color: @bg-hover;
 }
 
 #workspaces button.active {
-    color: @base09;
-    background-color: @base02;
+    color: @hl-main;
+    background-color: transparent;
 }
 
 #workspaces button:hover {
-    background-color: @base00;
+    background-color: @bg-main;
 }
 
 #workspaces :first-child {
@@ -107,9 +102,26 @@ window#waybar.empty #window {
     margin-right: 0px;
 }
 
+#battery.warning {
+    color: @warning;
+}
+
+#battery.critical {
+    color: @error;
+}
+
 #custom-cpucores {
     font-size: 16px;
-    border-bottom: 1px solid white;
+    border-bottom: 1px solid @fg-main;
     padding: 0px;
     border-radius: 0px;
+}
+
+#custom-icon {
+    font-size: 20px;
+    margin: 5px 10px;
+    margin-left: 0px;
+    padding: 0px 6px;
+    color: @fg-alt;
+    background-color: @hl-main;
 }

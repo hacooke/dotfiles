@@ -101,14 +101,18 @@ handle_image() {
 
         # Image
         image/*)
-            local orientation
-            orientation="$( identify -format '%[EXIF:Orientation]\n' -- "${FILE_PATH}" )"
-            # If orientation data is present and the image actually
-            # needs rotating ("1" means no rotation)...
-            if [[ -n "$orientation" && "$orientation" != 1 ]]; then
-                # ...auto-rotate the image according to the EXIF data.
-                convert -- "${FILE_PATH}" -auto-orient "${IMAGE_CACHE_PATH}" && exit 6
-            fi
+            ueberzugpp cmd -s "$IMAGE_DISPLAY_ID" -x "$X" -y "$Y" \
+                             -w "$WIDTH" -h "$HEIGHT" \
+                             -- "$FILE_PATH"
+
+            # local orientation
+            # orientation="$( identify -format '%[EXIF:Orientation]\n' -- "${FILE_PATH}" )"
+            # # If orientation data is present and the image actually
+            # # needs rotating ("1" means no rotation)...
+            # if [[ -n "$orientation" && "$orientation" != 1 ]]; then
+            #     # ...auto-rotate the image according to the EXIF data.
+            #     convert -- "${FILE_PATH}" -auto-orient "${IMAGE_CACHE_PATH}" && exit 6
+            # fi
 
             # `w3mimgdisplay` will be called for all images (unless overriden as above),
             # but might fail for unsupported types.

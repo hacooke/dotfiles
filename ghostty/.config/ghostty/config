@@ -1,0 +1,56 @@
+# Run `ghostty +show-config --default --docs` to view a list of
+# all available config options and their default values.
+#
+# Additionally, each config option is also explained in detail
+# on Ghostty's website, at https://ghostty.org/docs/config.
+confirm-close-surface=false
+
+# Font configuration
+font-family = "IosevkaTerm NF"
+font-size = 12
+# font-style = Regular
+# font-style-bold = Bold
+# font-style-italic = Italic
+# font-style-bold-italic = Bold Italic
+
+# Colors
+theme = TokyoNight Storm
+# foreground = fffcf5
+# background = 2f2f2f
+# cursor-color = b9b9b9
+
+# # Standard colors (0-15)
+# palette = 0=#2f2f2f
+# palette = 1=#ff2817
+# palette = 2=#359c3c
+# palette = 3=#fba524
+# palette = 4=#ff421b
+# palette = 5=#f11d50
+# palette = 6=#1aa6f1
+# palette = 7=#f1e6df
+# palette = 8=#484848
+# palette = 9=#ff240b
+# palette = 10=#37d842
+# palette = 11=#ffda1c
+# palette = 12=#ff4910
+# palette = 13=#ff145e
+# palette = 14=#10ddff
+# palette = 15=#fffcf5
+
+# # Extended colors
+# palette = 130=#fba524
+# palette = 88=#fba524
+
+# Background transparency (85% opacity = 0.85)
+background-opacity = 0.85
+
+# Cursor
+cursor-style = block
+shell-integration-features = no-cursor
+# cursor-style-blink = false
+
+# Scrollback
+scrollback-limit = 2048
+
+# Keyboard protocol (modern terminals support this by default)
+# Ghostty supports enhanced keyboard protocols automatically
