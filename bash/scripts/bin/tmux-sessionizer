@@ -131,7 +131,7 @@ switch_to() {
 switch_to_external() {
     client_tty="$(
       tmux list-clients -F '#{client_tty} #{client_termname}' 2>/dev/null \
-      | awk '$2 ~ /^rxvt/ { print $1; exit }' || true
+      | awk '$2 ~ /xterm-ghostty/ { print $1; exit }' || true
     )"
 
     if [ -n "${client_tty}" ]; then

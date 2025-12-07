@@ -33,7 +33,7 @@ include $HOME/.config/system/config.sh
 ## Default programs
 export BROWSER="/usr/bin/qutebrowser"
 export EDITOR="/usr/bin/vim"
-export TERMINAL="/usr/bin/urxvt"
+export TERMINAL="/usr/bin/ghostty"
 
 ## Globals
 export XDG_CONFIG_HOME="$HOME/.config"
@@ -45,6 +45,8 @@ pathensure "$HOME/.local/bin"
 pathensure "$HOME/scripts/bin"
 
 ## Aliases
+alias ls='ls --color'
+alias grep='grep --color'
 alias mutt='neomutt'
 alias conon='conda activate'
 alias conoff='conda deactivate'
@@ -59,14 +61,26 @@ alias info='info --vi-keys'
 ## Binds
 bind -x '"":"tmux-sessionizer"'
 
+## Yazi
+# Change working directory on exit (if started with y)
+# Exit with q to change dir, exit with Q to not.
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	yazi "$@" --cwd-file="$tmp"
+	IFS= read -r -d '' cwd < "$tmp"
+	[ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+	rm -f -- "$tmp"
+}
+
 ## Xresources
-xrdb -merge ~/.Xresources
+command -v xrdb >/dev/null 2>&1 && xrdb -merge ~/.Xresources
 
 ## Miscellaneous
-### Fonts
-xset +fp $HOME/.local/share/fonts
-xset fp rehash
 
+### fzf
+
+source /usr/share/fzf/key-bindings.bash
+source /usr/share/fzf/completion.bash
 ### Conda
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!

@@ -13,10 +13,17 @@
 
 "" Basic options
 set noshowmode
-set conceallevel=0
 set mouse=a
 set clipboard=unnamedplus
 let mapleader=" "
+syntax on
+
+""" Conceal
+let g:vim_json_conceal=0
+let g:vim_json_syntax_conceal = 0
+let g:vim_markdown_conceal = 0
+let g:vim_markdown_conceal_code_blocks = 0
+
 """ Encoding
 set encoding=utf-8
 scriptencoding utf-8
@@ -65,11 +72,6 @@ nmap <silent> <C-k> :<C-u>wincmd k<CR>
 nmap <silent> <C-j> :<C-u>wincmd j<CR>
 nmap <silent> <C-h> :<C-u>wincmd h<CR>
 nmap <silent> <C-l> :<C-u>wincmd l<CR>
-"use ctrl-[yuio] to resize the active split
-nmap <silent> <c-y> <C-w>< <CR>
-nmap <silent> <c-u> <C-w>- <CR>
-nmap <silent> <c-i> <C-w>+ <CR>
-nmap <silent> <c-o> <C-w>> <CR>
 
 "" Folds
 """ Custom fold text
@@ -120,7 +122,7 @@ set foldtext=CustomFoldText()
 function! MultiCommentFold()
     let line = getline(v:lnum)
     let nextline = getline(v:lnum+1)
-    let comment = substitute(&commentstring, "%s", "", "")
+    let comment = substitute(&commentstring, '\(%s\|\s\)', "", "g")
     let matchstring = '^\'.comment.'\{2,}'
     if line =~ matchstring
         return '>'.(matchend(line, matchstring)-1)
@@ -375,6 +377,18 @@ map <C-z> :exe getline('.')[2:]<CR>
 
 "execute pathogen#infect()
 "call pathogen#helptags()
+
+let g:clipboard = {
+    \ 'name': 'wl-clipboard',
+    \ 'copy': {
+    \    '+': 'wl-copy --type text/plain',
+    \    '*': 'wl-copy --type text/plain',
+    \  },
+    \ 'paste': {
+    \    '+': 'wl-paste --no-newline',
+    \    '*': 'wl-paste --no-newline',
+    \ },
+\ }
 
 "" Local config files
 silent! so .vimlocal
