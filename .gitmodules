@@ -43,3 +43,6 @@
 [submodule "vim/.vim/pack/default/start/ale"]
 	path = vim/.vim/pack/default/start/ale
 	url = git@github.com:dense-analysis/ale
+[submodule "vim/.vim/pack/default/start/Colorizer"]
+	path = vim/.vim/pack/default/start/Colorizer
+	url = git@github.com:chrisbra/Colorizer.git
