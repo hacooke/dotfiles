@@ -15,6 +15,9 @@ vim.keymap.set('n', '<leader>fj', builtin.jumplist, { desc = 'Telescope jumplist
 vim.keymap.set('n', '<leader>f/', builtin.search_history, { desc = 'Telescope search history' })
 vim.keymap.set('n', '<leader>fm', builtin.marks, { desc = 'Telescope marks' })
 vim.keymap.set('n', '<leader>fe', builtin.diagnostics, { desc = 'Telescope diagnostic errors' })
+vim.keymap.set('n', '<leader>fa', function()
+    builtin.find_files({ no_ignore = true, follow = true })
+end, { desc = 'Telescope find all files' })
 
 -- Integrate telescope with fugitive
 local actions = require('telescope.actions')
@@ -23,7 +26,6 @@ require('telescope').setup({
     pickers = {
         git_commits = {
             attach_mappings = function(prompt_bufnr, map)
-
                 -- replace <CR> behaviour
                 map('i', '<CR>', function()
                     local entry = action_state.get_selected_entry()
@@ -43,6 +45,7 @@ require('telescope').setup({
         },
         find_files = {
             hidden = true,
+            no_ignore = false,
         },
     },
 })

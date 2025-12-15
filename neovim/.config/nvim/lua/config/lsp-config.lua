@@ -34,7 +34,7 @@ vim.lsp.config.basedpyright = {
     settings = {
         basedpyright = {
             analysis = {
-                typeCheckingMode = "strict", -- "off", "basic", "standard", "strict", "all"
+                typeCheckingMode = "standard", -- "off", "basic", "standard", "strict", "all"
                 autoSearchPaths = true,
                 useLibraryCodeForTypes = true,
                 diagnosticMode = "workspace", -- or "openFilesOnly"
@@ -152,6 +152,7 @@ vim.lsp.enable({
     "yamlls",
     "clangd",
     "rust_analyzer",
+    "arduino-language-server",
 })
 
 -- Keymaps

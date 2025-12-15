@@ -32,7 +32,7 @@ include $HOME/.config/system/config.sh
 
 ## Default programs
 export BROWSER="/usr/bin/qutebrowser"
-export EDITOR="/usr/bin/vim"
+export EDITOR="/usr/bin/nvim"
 export TERMINAL="/usr/bin/ghostty"
 
 ## Globals

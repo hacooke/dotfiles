@@ -1,2 +1,8 @@
 vim/.vim/tmp/*/*
 bash/scripts/shortcuts.sh
+neovim/.local/share/nvim/swap/*.sw*
+neovim/.local/share/nvim/undo/[^.]*
+neovim/.local/share/nvim/lazy
+neovim/.local/share/nvim/mason
+neovim/.local/share/nvim/telescope_history
+neovim/.config/nvim/lazy-lock.json

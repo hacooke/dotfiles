@@ -173,7 +173,7 @@ set ignorecase
 set smartcase
 set incsearch
 set hlsearch
-noremap <Leader>h :<C-u>noh<CR>
+noremap <Leader>hh :<C-u>noh<CR>
 " Open a quickfix window for the last search
 nnoremap <silent> <Leader>/ :execute 'vimgrep /'.@/.'/g %' <bar> copen<CR>
 " Ack for the last search (if Ack is installed)

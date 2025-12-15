@@ -5,4 +5,4 @@ $PKG_INSTALL cmake
 # stow -d ~/dotfiles cmake
 
 # Dependencies
-# dotinstall <otherpackage>
+dotinstall make gcc

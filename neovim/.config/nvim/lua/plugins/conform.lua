@@ -29,6 +29,9 @@ return {
                     command = "ruff",
                     args = { "check", "--select", "I", "--fix", "--stdin-filename", "$FILENAME", "-" },
                     stdin = true,
+                    condition = function()
+                        return false
+                    end,
                 },
             },
         },
