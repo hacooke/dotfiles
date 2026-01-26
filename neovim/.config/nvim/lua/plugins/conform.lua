@@ -7,6 +7,9 @@ return {
             formatters_by_ft = {
                 python = { "ruff_format", "ruff_organize_imports" },
                 lua = { "stylua" },
+                c = { "clang_format" },
+                cpp = { "clang_format" },
+                rust = { "rustfmt" },
                 javascript = { "prettier" },
                 typescript = { "prettier" },
                 json = { "prettier" },
@@ -32,6 +35,17 @@ return {
                     condition = function()
                         return false
                     end,
+                },
+                rustfmt = {
+                    command = "rustfmt",
+                    args = {
+                        "--emit", "stdout",
+                        "--quiet",
+                    },
+                    stdin = true,
+                    -- Optional: Use rustfmt config file if it exists
+                    -- rustfmt will automatically look for rustfmt.toml or .rustfmt.toml
+                    -- in the project root or use these inline options
                 },
             },
         },

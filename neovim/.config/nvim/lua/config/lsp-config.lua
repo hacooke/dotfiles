@@ -93,7 +93,7 @@ vim.lsp.config.rust_analyzer = {
                     enable = true,
                 },
             },
-            checkOnSave = {
+            check = {
                 command = "clippy",
             },
             procMacro = {
