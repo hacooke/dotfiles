@@ -5,16 +5,11 @@ These are my config files for various tools, primarily for my linux desktop envi
 ## Arch Config To Do
 
 ### Functionality
- * SwayNC
-    + Notification
-    + Central bar menu with calendar, notifications
-    + Right bar menu with sliders, more detailed performance info, media player
-    + Keybinds to open bar menus
+ * File manager
+    + Yazi in scratchpad
  * Utilities
     + Lock screen
     + Idle
- * File manager
-    + Replace ranger with yazi?
  * Waybar
     + Bluetooth module
     + Volume slider that appears only when changing volume
@@ -34,13 +29,13 @@ These are my config files for various tools, primarily for my linux desktop envi
     + Might not be necessary if I have sufficient waybar/NC integrations
 
 ### Styling
- * Rofi styles
  * Modular colour inputs for tools
     + Hyprland
     + Waybar
     + Ghostty
     + Yazi
     + Rofi
+    + SwayNC
  * More wallpapers
  * Theme system
     + Match each wallpaper to a theme

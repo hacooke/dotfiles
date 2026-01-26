@@ -1,0 +1,73 @@
+output eDP-1 {
+    mode 1920x1200@60.0
+    position 0,1440
+    scale 1
+    alias $LAPTOP
+}
+
+output "Beihai Century Joint Innovation Technology Co.,Ltd 34SUWD144FSHQ Unknown" {
+    mode 3440x1440@60.0
+    position 187,0
+    scale 1
+    alias $HOME_UW
+}
+
+output "Beihai Century Joint Innovation Technology Co.Ltd 34SUWD144FSHQ Unknown" {
+    mode 3440x1440@60.0
+    position 187,0
+    scale 1
+    alias $HOME_UW2
+}
+
+output "Invalid Vendor Codename - RTK 0x1920 0x01010101" {
+    mode 1920x1080@60.0
+    position 1920,1440
+    scale 1
+    alias $YODOIT
+}
+
+output "AOC 2460 GJPJ3HA051240" {
+    mode 1920x1080@60.0
+    position 0,0
+    scale 1
+    alias $DADLEFT
+}
+
+output "Iiyama North America PL2492H 11511927A1383" {
+    mode 1920x1080@60.0
+    position 3840,0
+    scale 1
+    alias $DADRIGHT
+}
+
+profile docked {
+    output $LAPTOP enable
+    output $HOME_UW enable
+    output $YODOIT enable
+    exec source ~/scripts/config/wallpaper_reset.sh
+    exec source ~/scripts/config/launch_waybar.sh
+}
+
+profile docked2 {
+    output $LAPTOP enable
+    output $HOME_UW2 enable
+    output $YODOIT enable
+    exec source ~/scripts/config/wallpaper_reset.sh
+    exec source ~/scripts/config/launch_waybar.sh
+}
+
+profile mobile {
+    output $LAPTOP enable
+    exec source ~/scripts/config/wallpaper_reset.sh
+    exec source ~/scripts/config/launch_waybar.sh
+}
+
+profile dadoffice {
+    output $LAPTOP {
+        position 1920,595
+    }
+    output $DADLEFT enable
+    output $DADRIGHT enable
+    exec source ~/scripts/config/wallpaper_reset.sh
+    exec source ~/scripts/config/launch_waybar.sh
+}

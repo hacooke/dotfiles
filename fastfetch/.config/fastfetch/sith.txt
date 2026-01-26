@@ -1,0 +1,24 @@
+ o                                        oo
+  ooo      oo                  oo      ooo  
+   ooooo   oooo              oooo   ooooo   
+    ooooooo oooooo        oooooo ooooooo    
+     oooooooooooooooooooooooooooooooooo     
+      oooooooooooooo    oooooooooooooo      
+  ooooooooooooo              ooooooooooooo  
+    ooooooooo      oooooo      ooooooooo    
+     ooooooo    oooooooooooo    ooooooo     
+      ooooo    oooooooooooooo    ooooo      
+        oo    oooooooooooooooo    oo        
+        oo   oooooooooooooooooo   oo        
+        oo   oooooooooooooooooo   oo        
+        oo    oooooooooooooooo    oo        
+      ooooo    oooooooooooooo    ooooo      
+     ooooooo    oooooooooooo    ooooooo     
+    ooooooooo      oooooo      oooooooooo   
+  ooooooooooooo              ooooooooooooo  
+      oooooooooooooo    %ooooooooooooo      
+     oooooooooooooooooooooooooooooooooo     
+    ooooooo oooooo        oooooo ooooooo    
+   ooooo   oooo              oooo   ooooo   
+  ooo      oo                  oo      ooo  
+ o                                        oo

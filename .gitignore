@@ -6,3 +6,4 @@ neovim/.local/share/nvim/lazy
 neovim/.local/share/nvim/mason
 neovim/.local/share/nvim/telescope_history
 neovim/.config/nvim/lazy-lock.json
+bash/.config/system/config.sh

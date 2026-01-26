@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+#TODO toggle behaviour? If window already exists, kill it, else create it
+TITLE="calendar_term_widget"
+
+PID=$(hyprctl -j clients | jq --arg title "$TITLE" '.[] | select(.title == $title) | .pid')
+
+if [ -z $PID ]; then
+    ghostty --title=$TITLE -e calcurse
+else
+    kill $PID
+fi
+

@@ -45,6 +45,7 @@ session_cmd=""
 user_selected=""
 split_type=""
 VERSION="0.1.0"
+rofi_prompt="tmux-session:"
 
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
@@ -90,6 +91,10 @@ while [[ "$#" -gt 0 ]]; do
         ;;
     --rofi)
         rofi_mode=true
+        ;;
+    --rofi-prompt)
+        rofi_prompt=$2
+        shift
         ;;
     *)
         user_selected="$1"
@@ -320,7 +325,7 @@ if [[ ! -z $session_cmd ]]; then
 elif [[ ! -z $user_selected ]]; then
     selected="$user_selected"
 elif [[ "$rofi_mode" = true ]]; then
-    selected=$(find_dirs | rofi -dmenu -match fzf -p 'tmux-session:')
+    selected=$(find_dirs | rofi -dmenu -match fzf -p "$rofi_prompt")
 else
     selected=$(find_dirs | fzf)
 fi
