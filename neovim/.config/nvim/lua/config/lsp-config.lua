@@ -1,3 +1,5 @@
+local border = "rounded"
+
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
 local default_config = {
@@ -178,7 +180,7 @@ vim.diagnostic.config({
         source = "if_many",
     },
     float = {
-        border = "rounded",
+        border = border,
         source = "always",
     },
     signs = {
@@ -195,10 +197,9 @@ vim.diagnostic.config({
 })
 
 -- Floating window borders
-local border = "rounded"
-vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-    vim.lsp.handlers.hover, { border = border }
-)
-vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
-    vim.lsp.handlers.signature_help, { border = border }
-)
+local handlers = vim.lsp.handlers
+handlers["textDocument/hover"] = vim.lsp.with(handlers.hover, { border = border })
+handlers["textDocument/signatureHelp"] = vim.lsp.with(handlers.signature_help, { border = border })
+handlers["textDocument/codeAction"] = vim.lsp.with(handlers.code_action, { border = border })
+handlers["textDocument/implementation"] = vim.lsp.with(handlers.implementation, { border = border })
+handlers["textDocument/reference"] = vim.lsp.with(handlers.references, { border = border })
