@@ -1,0 +1,12 @@
+// Tokyo Night - Storm
+* {
+    bg-main:      #24283bff;
+    bg-alt:       #565f89ff;
+    bg2:          #9aa5ceff;
+    border:       @bg-alt;
+    fg0:          #a8b5d1ff;
+    fg1:          #24283bff;
+    placeholder:  #5a6478ff;
+    accent:       #f7768eff;
+    urgent:       #f7768eff;
+}

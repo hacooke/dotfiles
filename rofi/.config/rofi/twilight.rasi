@@ -1,0 +1,153 @@
+/**
+ * Twilight Horizon Rofi Theme
+ * Inspired by deep blue twilight with red horizon accent
+ */
+
+@import "colours.rasi"
+
+* {
+    background-color: transparent;
+    font:  "IosevkaTerm NF 16";
+    text-color:       @fg0;
+    margin:           0;
+    padding:          0;
+    spacing:          0;
+}
+
+window {
+    background-color: @bg-main;
+    border:           2px;
+    border-color:     @border;
+    border-radius:    8px;
+    width:            600px;
+    location:         center;
+    anchor:           center;
+}
+
+mainbox {
+    padding: 12px;
+}
+
+inputbar {
+    background-color: @bg-alt;
+    border:           1px;
+    border-color:     @border;
+    border-radius:    4px;
+    padding:          12px 16px;
+    spacing:          8px;
+    children:         [ prompt, entry ];
+    margin:           0 0 12px 0;
+}
+
+prompt {
+    text-color: @accent;
+}
+
+entry {
+    placeholder:       "Search...";
+    placeholder-color: @fg0;
+    text-color:        @fg0;
+    font-weight:       "bold";
+}
+
+message {
+    background-color: @bg-alt;
+    border:           1px;
+    border-color:     @border;
+    border-radius:    4px;
+    padding:          8px;
+    margin:           0 0 8px 0;
+}
+
+textbox {
+    padding:    8px;
+    text-color: @fg0;
+}
+
+listview {
+    background-color: transparent;
+    columns:          1;
+    lines:            8;
+    spacing:          4px;
+    cycle:            false;
+    dynamic:          true;
+    scrollbar:        true;
+}
+
+element {
+    background-color: transparent;
+    text-color:       @fg0;
+    border-radius:    4px;
+    padding:          8px 12px;
+}
+
+element selected.normal {
+    background-color: @bg2;
+    text-color:       @fg1;
+    border:           1px;
+    border-color:     @accent;
+}
+
+element normal.active,
+element alternate.active {
+    text-color: @accent;
+}
+
+element selected.active {
+    background-color: @bg2;
+    text-color:       @accent;
+    border:           1px;
+    border-color:     @accent;
+}
+
+element normal.urgent,
+element alternate.urgent {
+    text-color: @urgent;
+}
+
+element selected.urgent {
+    background-color: @bg2;
+    text-color:       @urgent;
+    border:           1px;
+    border-color:     @urgent;
+}
+
+scrollbar {
+    width:        4px;
+    handle-width: 4px;
+    handle-color: @accent;
+    border-radius: 2px;
+    background-color: @bg-alt;
+    margin:       0 0 0 4px;
+}
+
+element-text {
+    background-color: inherit;
+    text-color:       inherit;
+}
+
+element-icon {
+    background-color: transparent;
+    size:             1.2em;
+    padding:          0 8px 0 0;
+}
+
+mode-switcher {
+    spacing: 8px;
+    margin:  8px 0 0 0;
+}
+
+button {
+    background-color: @bg-alt;
+    text-color:       @fg0;
+    border:           1px;
+    border-color:     @border;
+    border-radius:    4px;
+    padding:          8px 16px;
+}
+
+button selected {
+    background-color: @bg2;
+    text-color:       @accent;
+    border-color:     @accent;
+}
