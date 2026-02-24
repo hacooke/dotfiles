@@ -1,0 +1,9 @@
+/* Tokyo Night Storm */
+@define-color fg-main  #cfc9c2;
+@define-color fg-alt   #24283b;
+@define-color bg-main  #24283b;
+@define-color bg-alt   #565f89;
+@define-color bg-hover #9aa5ce;
+@define-color hl-main  #f7768e;
+@define-color warning  #ff9e64;
+@define-color error    #f7768e;

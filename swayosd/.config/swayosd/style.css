@@ -1,0 +1,35 @@
+@import "colours.css";
+
+* {
+    font-family: "IosevkaTerm Nerd Font Propo";
+}
+
+window {
+    border-radius: 10px;
+    opacity: 0.97;
+    border: 2px solid @bg-alt;
+    background-color: @bg-main;
+    padding: 0px;
+}
+
+label {
+    font-size: 14pt;
+    color: @fg-main;
+}
+
+image {
+    color: @fg-main;
+    -gtk-icon-transform: scale(0.6);
+}
+
+progressbar {
+    border-radius: 10px;
+}
+
+progress {
+    background-color: @hl-main;
+}
+
+trough {
+    background: @bg-alt;
+}
