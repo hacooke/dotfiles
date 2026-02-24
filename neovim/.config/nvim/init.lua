@@ -22,7 +22,6 @@ local is_wsl = vim.fn.has("unix") == 1 and (vim.fn.systemlist("uname -r")[1] or 
 if is_wsl then
     require("config.wsl")
 end
-require("config.wsl")
 
 -- Git tooling
 require("config.git").setup({})
