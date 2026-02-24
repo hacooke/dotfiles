@@ -1,2 +1,6 @@
 .*.sw*
 __pycache__
+ci.ps1
+ci.sh
+.git
+.github
