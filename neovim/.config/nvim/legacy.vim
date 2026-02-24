@@ -39,7 +39,7 @@ set undodir^=~/.local/share/nvim/undo//
 set termguicolors
 
 " No charachters in verts and folds
-set fillchars=vert:\ ,fold:\ 
+set fillchars=vert:│,fold:\ 
 
 """ Line numbers
 set relativenumber

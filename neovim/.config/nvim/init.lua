@@ -28,3 +28,8 @@ require("config.wsl")
 require("config.git").setup({})
 
 vim.keymap.set("n", "<Leader>fp", "<cmd>silent !tmux neww tmux-sessionizer<CR>")
+
+vim.keymap.set("n", "<Leader>cc", function()
+  vim.cmd("silent make")
+  vim.cmd("copen")
+end, { desc = "Run make and open quickfix" })

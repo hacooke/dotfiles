@@ -10,10 +10,18 @@ require("copilot_cmp").setup()
 cmp = require("cmp")
 cmp.setup({
     sources = {
-        { name = "nvim_lsp", group_index = 2 },
-        { name = "path", group_index = 2 },
+        { name = "nvim_lsp", group_index = 1 },
+        { name = "path", group_index = 1 },
         { name = "copilot", group_index = 2 },
-        { name = "buffer", group_index = 2 },
+        {
+            name = "buffer",
+            group_index = 3,
+            option = {
+                get_bufnrs = function()
+                    return vim.api.nvim_list_bufs()
+                end,
+            }
+        },
     },
     window = {
         completion = cmp.config.window.bordered {
@@ -23,4 +31,8 @@ cmp.setup({
             border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
         },
     },
+    preselect = cmp.PreselectMode.None,
+    mapping = {
+        ["<CR>"] = cmp.mapping.confirm({ select = false }),
+    }
 })

@@ -18,7 +18,7 @@ return {
                 bash = { "shfmt" },
                 sh = { "shfmt" },
             },
-            format_on_save = false,--{
+            format_on_save = false, --{
             --     timeout_ms = 1000,
             --     lsp_fallback = true,
             -- },
@@ -39,6 +39,7 @@ return {
                 rustfmt = {
                     command = "rustfmt",
                     args = {
+                        "--config", "edition=2024",
                         "--emit", "stdout",
                         "--quiet",
                     },

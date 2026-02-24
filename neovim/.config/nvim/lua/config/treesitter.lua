@@ -1,4 +1,6 @@
 require("nvim-treesitter.configs").setup({
+    modules = {},
+    ignore_install = {},
     ensure_installed = {
         "lua",
         "vim",
@@ -48,13 +50,13 @@ require("nvim-treesitter.configs").setup({
             enable = true,
             lookahead = true,
             keymaps = {
-                ["af"] = { query = "@function.outer", desc = "Select inner part of a function region" },
-                ["if"] = { query = "@function.inner", desc = "Select inner part of a function region" },
-                ["ac"] = { query = "@class.outer", desc = "Select inner part of a class region" },
-                ["ic"] = { query = "@class.inner", desc = "Select inner part of a class region" },
+                ["af"] = { query = "@function.outer", desc = "Select outer function region" },
+                ["if"] = { query = "@function.inner", desc = "Select inner function region" },
+                ["ac"] = { query = "@class.outer", desc = "Select outer class region" },
+                ["ic"] = { query = "@class.inner", desc = "Select inner class region" },
                 ["as"] = { query = "@local.scope", query_group = "locals", desc = "Select language scope" },
-                ["aa"] = { query = "@parameter.outer", desc = "Select inner part of a parameter region" },
-                ["ia"] = { query = "@parameter.inner", desc = "Select inner part of a parameter region" },
+                ["aa"] = { query = "@parameter.outer", desc = "Select outer parameter region" },
+                ["ia"] = { query = "@parameter.inner", desc = "Select inner parameter region" },
             },
             include_surrounding_whitespace = true,
         },
@@ -72,3 +74,8 @@ require("nvim-treesitter.configs").setup({
     },
 })
 
+vim.filetype.add({
+    extension = {
+        ino = "cpp",
+    },
+})

@@ -1,4 +1,21 @@
 vim.env["CODECOMPANION_TOKEN_PATH"] = vim.fn.expand("~/.config")
+
+vim.keymap.set("n", "<Leader>aa", function()
+    require("codecompanion").toggle()
+end, { desc = "Toggle CodeCompanion Chat", silent = true })
+
+vim.keymap.set("n", "<Leader>an", function()
+    vim.cmd("CodeCompanionChat")
+end, { desc = "New CodeCompanion Chat", silent = true })
+
+vim.keymap.set({"n", "v"}, "<leader>af", function()
+    vim.cmd("CodeCompanionActions")
+end, { desc = "Open CodeCompanion Actions", silent = true })
+
+vim.keymap.set({"v", "x"}, "<leader>ai", function()
+    require("codecompanion").prompt("implement")
+end, { desc = "Implement selected function (CodeCompanion prompt: /implement)" })
+
 require("codecompanion").setup {
     adapters = {
         gemini = function()
@@ -40,19 +57,12 @@ require("codecompanion").setup {
     strategies = {
         chat = {
             adapter = "copilot",
-            model = "mistralai/devstral-2512:free",
         },
         inline = {
-            adapter = "openrouter_mistral",
-            model = "mistralai/devstral-2512:free",
+            adapter = "copilot",
         },
         agent = {
-            adapter = "openrouter_mistral",
-            model = "mistralai/devstral-2512:free",
-            tools = {
-                ["editor"] = { enabled = true },
-                ["files"] = { enabled = true },
-            },
+            adapter = "copilot",
         },
     },
     display = {
@@ -81,6 +91,13 @@ require("codecompanion").setup {
         },
     },
     opts = {
-        log_level = "DEBUG", -- or "TRACE"
+        log_level= "DEBUG", -- or "TRACE"
+    },
+    prompt_library = {
+        markdown = {
+            dirs = {
+                vim.fn.stdpath("config") .. "/prompts",
+            },
+        },
     },
 }

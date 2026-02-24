@@ -55,6 +55,8 @@ vim.lsp.config.clangd = {
         "--completion-style=detailed",
         "--function-arg-placeholders",
         "--fallback-style=llvm",
+        -- Add Arduino-specific flags
+        "--query-driver=/usr/bin/avr-g++,/usr/bin/arm-none-eabi-g++",
     },
     filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
     root_markers = {
@@ -88,15 +90,16 @@ vim.lsp.config.rust_analyzer = {
     capabilities = capabilities,
     settings = {
         ["rust-analyzer"] = {
+            lruCapacity = 512,
             cargo = {
                 allFeatures = true,
-                loadOutDirsFromCheck = true,
+                loadOutDirsFromCheck = false,
                 buildScripts = {
-                    enable = true,
+                    enable = false,
                 },
             },
             check = {
-                command = "clippy",
+                command = "check",
             },
             procMacro = {
                 enable = true,
@@ -154,7 +157,7 @@ vim.lsp.enable({
     "yamlls",
     "clangd",
     "rust_analyzer",
-    "arduino-language-server",
+    --"arduino_language_server",
 })
 
 -- Keymaps
@@ -165,12 +168,18 @@ vim.api.nvim_create_autocmd("LspAttach", {
         vim.keymap.set("n", "<Leader>ld", vim.lsp.buf.definition, opts)
         vim.keymap.set("n", "<Leader>lr", vim.lsp.buf.rename, opts)
         vim.keymap.set("n", "<Leader>lt", vim.lsp.buf.type_definition, opts)
-        vim.keymap.set("n", "<Leader>lh", vim.lsp.buf.hover, opts)
+        vim.keymap.set("n", "<Leader>lh", function()
+            vim.lsp.buf.hover({ border = border })
+        end, opts)
         vim.keymap.set("n", "<Leader>lf", vim.lsp.buf.references, opts)
         vim.keymap.set("n", "<Leader>la", vim.lsp.buf.code_action, opts)
         vim.keymap.set("n", "<Leader>le", vim.diagnostic.open_float, opts)
-        vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
-        vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
+        vim.keymap.set("n", "<leader>li", function()
+            vim.lsp.inlay_hint.enable(
+                not vim.lsp.inlay_hint.is_enabled()
+            )
+        end, { desc = "Toggle inlay hints" })
+        vim.keymap.set("n", "<Leader>lq", vim.diagnostic.setqflist, opts)
     end,
 })
 
@@ -181,25 +190,17 @@ vim.diagnostic.config({
     },
     float = {
         border = border,
-        source = "always",
+        source = true,
     },
     signs = {
         text = {
-            [vim.diagnostic.severity.ERROR] = "",  -- nf-cod-error
-            [vim.diagnostic.severity.WARN] = "",   -- nf-fa-exclamation_triangle
-            [vim.diagnostic.severity.HINT] = "",   -- nf-fa-lightbulb_o
-            [vim.diagnostic.severity.INFO] = "",   -- nf-fa-info_circle
+            [vim.diagnostic.severity.ERROR] = "", -- nf-cod-error
+            [vim.diagnostic.severity.WARN] = "", -- nf-fa-exclamation_triangle
+            [vim.diagnostic.severity.HINT] = "", -- nf-fa-lightbulb_o
+            [vim.diagnostic.severity.INFO] = "", -- nf-fa-info_circle
         },
     },
     underline = true,
     update_in_insert = false,
     severity_sort = true,
 })
-
--- Floating window borders
-local handlers = vim.lsp.handlers
-handlers["textDocument/hover"] = vim.lsp.with(handlers.hover, { border = border })
-handlers["textDocument/signatureHelp"] = vim.lsp.with(handlers.signature_help, { border = border })
-handlers["textDocument/codeAction"] = vim.lsp.with(handlers.code_action, { border = border })
-handlers["textDocument/implementation"] = vim.lsp.with(handlers.implementation, { border = border })
-handlers["textDocument/reference"] = vim.lsp.with(handlers.references, { border = border })

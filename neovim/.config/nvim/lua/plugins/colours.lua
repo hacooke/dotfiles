@@ -1,8 +1,31 @@
 return {
     {
-        "catppuccin/nvim", name = "catppuccin", priority = 1000,
+        "catppuccin/nvim",
+        name = "catppuccin",
+        priority = 1000,
         opts = {
-            transparent_background = 1
+            transparent_background = true,
+            integrations = {
+                telescope = true,
+                native_lsp = { enabled = true },
+                which_key = true,
+                noice = true,
+                cmp = true,
+                treesitter = true,
+                gitsigns = true,
+            },
+            color_overrides = {},
+            custom_highlights = function(colors)
+                return {
+                    NormalFloat     = { bg = "NONE" },
+                    FloatBorder     = { bg = "NONE" },
+                    TelescopeNormal = { link = "Normal" },
+                    TelescopeBorder = { link = "FloatBorder" },
+                    TabLineSel      = { bg = colors.base },
+                    TabLine         = { bg = "NONE" },
+                    WinSeparator    = { link = "FloatBorder" },
+                }
+            end,
         }
     },
     {

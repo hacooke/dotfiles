@@ -6,4 +6,5 @@ return {
     config = function()
         require("config.copilot")
     end,
+    cmd = "Copilot",
 }
