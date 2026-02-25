@@ -24,9 +24,6 @@ These are my config files for various tools, primarily for my linux desktop envi
  * Dashboard for system health?
     + Disk usage
     + CPU etc.
- * SwayOSD?
-    + Volume change etc
-    + Might not be necessary if I have sufficient waybar/NC integrations
 
 ### Styling
  * Modular colour inputs for tools

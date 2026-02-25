@@ -4,6 +4,11 @@
     font-family: "IosevkaTerm Nerd Font Propo";
 }
 
+box {
+    padding: 8px 8px;
+    margin: 0px;
+}
+
 window {
     border-radius: 10px;
     opacity: 0.97;
