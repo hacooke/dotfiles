@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+#TODO toggle behaviour? If window already exists, kill it, else create it
+TITLE=$1
+shift
+
+PID=$(hyprctl -j clients | jq --arg title "$TITLE" '.[] | select(.title == $title) | .pid')
+
+if [ -z $PID ]; then
+    $TERMINAL --title=$TITLE $@
+# else
+#     kill $PID
+fi
+

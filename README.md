@@ -5,8 +5,6 @@ These are my config files for various tools, primarily for my linux desktop envi
 ## Arch Config To Do
 
 ### Functionality
- * File manager
-    + Yazi in scratchpad
  * Waybar
     + Bluetooth module
     + Volume slider that appears only when changing volume
