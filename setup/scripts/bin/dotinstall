@@ -45,7 +45,7 @@ pkg_install $package
 # Dependencies
 # $DOTINSTALL_CMD <otherpackage>
 EOF
-    vim $install_script
+    ${EDITOR:-vi} $install_script
 }
 
 install_package() {
