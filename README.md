@@ -7,9 +7,6 @@ These are my config files for various tools, primarily for my linux desktop envi
 ### Functionality
  * File manager
     + Yazi in scratchpad
- * Utilities
-    + Lock screen
-    + Idle
  * Waybar
     + Bluetooth module
     + Volume slider that appears only when changing volume
