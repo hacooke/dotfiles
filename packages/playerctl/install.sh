@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall playerctl
-$PKG_INSTALL playerctl
+pkg_install playerctl
 
 # Install config from dotfiles
 # stow -d ~/dotfiles playerctl

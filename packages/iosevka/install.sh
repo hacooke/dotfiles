@@ -1,2 +1,2 @@
 # dotinstall child script. Usage: dotinstall iosevka
-$PKG_INSTALL ttf-iosevkaterm-nerd
+pkg_install ttf-iosevkaterm-nerd

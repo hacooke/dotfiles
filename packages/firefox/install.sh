@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall firefox
-$PKG_INSTALL firefox
+pkg_install firefox
 
 # Install config from dotfiles
 # stow -d ~/dotfiles firefox

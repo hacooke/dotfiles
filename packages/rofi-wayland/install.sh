@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall rofi-wayland
-$PKG_INSTALL rofi-wayland
+pkg_install rofi-wayland
 
 # Install config from dotfiles
 stow -d ~/dotfiles rofi

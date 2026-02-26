@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall hyprland
-$PKG_INSTALL hyprland
+pkg_install hyprland
 
 # Install config from dotfiles
 stow -d ~/dotfiles hyprland

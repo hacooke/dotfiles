@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall ueberzug
-$PKG_INSTALL ueberzug
+pkg_install ueberzug
 
 # Install config from dotfiles
 # stow -d ~/dotfiles ueberzug

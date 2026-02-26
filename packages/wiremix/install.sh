@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall wiremix
-$PKG_INSTALL wiremix
+pkg_install wiremix
 
 # Install config from dotfiles
 # stow -d ~/dotfiles wiremix

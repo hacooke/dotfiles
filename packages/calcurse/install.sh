@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall calcurse
-$PKG_INSTALL calcurse
+pkg_install calcurse
 
 # Install config from dotfiles
 # stow -d ~/dotfiles calcurse

@@ -12,6 +12,9 @@ These are my config files for various tools, primarily for my linux desktop envi
     + Bottom bar with media/performance/open apps
         - Toggleable on keybind?
     + Hyprland mode
+ * apps
+    + Note taking?
+    + Emails + calendar
  * System basics -- test and install programs to manage each of
     + Graphics drivers
     + Bluetooth

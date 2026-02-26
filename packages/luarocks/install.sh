@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall luarocks
-$PKG_INSTALL luarocks
+pkg_install luarocks
 
 # Install config from dotfiles
 # stow -d ~/dotfiles luarocks

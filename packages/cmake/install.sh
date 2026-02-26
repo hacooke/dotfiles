@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall cmake
-$PKG_INSTALL cmake
+pkg_install cmake
 
 # Install config from dotfiles
 # stow -d ~/dotfiles cmake

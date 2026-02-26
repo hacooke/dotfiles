@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall ssh
-$PKG_INSTALL openssh
+pkg_install openssh
 
 # Install config from dotfiles
 # stow -d ~/dotfiles ssh

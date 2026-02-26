@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall git
-$PKG_INSTALL git
+pkg_install git
 
 # Install config from dotfiles
  stow -d ~/dotfiles git

@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall kanshi
-$PKG_INSTALL kanshi
+pkg_install kanshi
 
 # Install config from dotfiles
 stow -d ~/dotfiles kanshi

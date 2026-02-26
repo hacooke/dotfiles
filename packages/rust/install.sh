@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall rust
-$PKG_INSTALL rust
+pkg_install rust
 
 # Install config from dotfiles
 # stow -d ~/dotfiles rust

@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall matplotlib
-$PKG_INSTALL python-matplotlib
+pkg_install python-matplotlib
 
 # Install config from dotfiles
 stow -d ~/dotfiles matplotlib

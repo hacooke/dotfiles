@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall ripgrep
-$PKG_INSTALL ripgrep
+pkg_install ripgrep
 
 # Install config from dotfiles
 # stow -d ~/dotfiles ripgrep

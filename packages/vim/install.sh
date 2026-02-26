@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall vim
-$PKG_INSTALL gvim
+pkg_install gvim
 # Install from gvim package (usually has clipboard support)
 
 # Install config from dotfiles

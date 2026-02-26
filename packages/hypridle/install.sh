@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall hypridle
-$PKG_INSTALL hypridle
+pkg_install hypridle
 
 # Install config from dotfiles
 stow -d ~/dotfiles hypridle

@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall xclip
-$PKG_INSTALL xclip
+pkg_install xclip
 
 # Install config from dotfiles
 # stow -d ~/dotfiles xclip

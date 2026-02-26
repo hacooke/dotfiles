@@ -16,13 +16,13 @@ if [[ -z $1 ]]; then
 fi
 
 # Identify install command
-if [[ -z $PKG_INSTALL ]] && [[ -f $PKG_MANAGER_CHECK ]]; then
+if ! declare -f pkg_install > /dev/null && [[ -f $PKG_MANAGER_CHECK ]]; then
     . $PKG_MANAGER_CHECK
 fi
 
 # Error if still undefined
-if [[ -z $PKG_INSTALL ]]; then
-    echo "PKG_INSTALL not set" >&2
+if ! declare -f pkg_install > /dev/null; then
+    echo "pkg_install not set" >&2
     exit 1
 fi
 
@@ -37,7 +37,7 @@ create_install_script() {
     local package=$2
     cat << EOF > $install_script
 # dotinstall child script. Usage: $DOTINSTALL_CMD $package
-\$PKG_INSTALL $package
+pkg_install $package
 
 # Install config from dotfiles
 # stow -d ~/dotfiles $package

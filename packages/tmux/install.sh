@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall tmux
-$PKG_INSTALL tmux
+pkg_install tmux
 
 # Install config from dotfiles
  stow -d ~/dotfiles tmux

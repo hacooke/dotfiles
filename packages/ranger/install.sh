@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall ranger
-$PKG_INSTALL ranger
+pkg_install ranger
 
 # Install config from dotfiles
 stow -d ~/dotfiles ranger

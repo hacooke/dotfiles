@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall docker
-$PKG_INSTALL docker
+pkg_install docker
 
 # Install config from dotfiles
 # stow -d ~/dotfiles docker

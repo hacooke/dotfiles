@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall yazi
-$PKG_INSTALL yazi
+pkg_install yazi
 
 # Install config from dotfiles
 stow -d ~/dotfiles yazi

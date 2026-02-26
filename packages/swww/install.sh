@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall swww
-$PKG_INSTALL swww
+pkg_install swww
 
 # Install config from dotfiles
 # stow -d ~/dotfiles swww

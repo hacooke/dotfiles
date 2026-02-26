@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall ly
-$PKG_INSTALL ly
+pkg_install ly
 
 # Install config from dotfiles
 sudo stow -d ~/dotfiles -t /etc ly

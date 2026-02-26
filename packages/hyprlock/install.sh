@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall hyprlock
-$PKG_INSTALL hyprlock
+pkg_install hyprlock
 
 # Install config from dotfiles
 stow -d ~/dotfiles hyprlock

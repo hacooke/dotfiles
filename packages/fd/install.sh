@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall fd
-$PKG_INSTALL fd
+pkg_install fd
 
 # Install config from dotfiles
 # stow -d ~/dotfiles fd

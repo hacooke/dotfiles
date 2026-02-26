@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall neovim
-$PKG_INSTALL neovim
+pkg_install neovim
 
 # Install config from dotfiles
 stow -d ~/dotfiles neovim

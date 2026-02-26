@@ -1,5 +1,5 @@
 # dotinstall child script. Usage: dotinstall gcc
-$PKG_INSTALL gcc
+pkg_install gcc
 
 # Install config from dotfiles
 # stow -d ~/dotfiles gcc
