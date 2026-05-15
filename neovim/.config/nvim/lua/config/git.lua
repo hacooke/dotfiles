@@ -143,6 +143,35 @@ function M.inline_diff_pick()
     M.inline_diff({ target = t, use_merge_base = false }) -- direct compare by default
 end
 
+
+function M.fetch_confirm()
+    -- local received_output = false
+    -- vim.fn.jobstart("git fetch 2>&1", {
+    --   on_stdout = function(_, data)
+    --     for _, line in ipairs(data) do
+    --       if line ~= "" then
+    --         received_output = true
+    --         print(line)
+    --       end
+    --     end
+    --   end,
+    --   on_exit = function()
+    --     if not received_output then
+    --       print("Up to date.")
+    --     end
+    --   end,
+    -- })
+
+    -- local output = vim.fn.system("git fetch 2>&1")
+    -- if output == "" then
+    --   print("Up to date.")
+    -- else
+    --   print(output)
+    -- end
+    vim.cmd("Git fetch")
+    print("Up to date.")
+end
+
 -- --- Convenience toggles & commands ----------------------------------------
 
 function M.toggle_merge_base()
@@ -178,6 +207,25 @@ function M.setup(user_cfg)
     map("n", "<leader>gs", function()
         if has_fugitive() then vim.cmd("Git") else notify("vim-fugitive not found.", vim.log.levels.WARN) end
     end, "Git: status")
+    map("n", "<leader>gg", M.fetch_confirm, "Git: fetch")
+    -- function()
+    -- if has_fugitive() then vim.cmd("Git fetch") else notify("vim-fugitive not found.", vim.log.levels.WARN) end
+    -- end
+    map("n", "<leader>gp", function()
+        if has_fugitive() then vim.cmd("Git pull") else notify("vim-fugitive not found.", vim.log.levels.WARN) end
+    end, "Git: pull")
+    map("n", "<leader>gP", function()
+        if has_fugitive() then vim.cmd("Git push -u") else notify("vim-fugitive not found.", vim.log.levels.WARN) end
+    end, "Git: push")
+    map("n", "<leader>gh", function()
+        if has_fugitive() then vim.cmd("Git stash push --keep-index") else notify("vim-fugitive not found.", vim.log.levels.WARN) end
+    end, "Git: stash (keep index)")
+    map("n", "<leader>gH", function()
+        if has_fugitive() then vim.cmd("Git stash pop") else notify("vim-fugitive not found.", vim.log.levels.WARN) end
+    end, "Git: stash pop")
+    map("n", "<leader>gc", function()
+        vim.api.nvim_feedkeys(":Git ", "n", false)
+    end, "Git: interactive command")
 
     -- User commands for ex-mode usage
     vim.api.nvim_create_user_command("GitDiffReview", function(opts)
