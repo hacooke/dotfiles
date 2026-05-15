@@ -52,18 +52,27 @@ require("codecompanion").setup {
                     },
                 })
             end
-        }
+        },
+        ollama = function()
+            return require("codecompanion.adapters").extend("ollama", {
+                env = {
+                    url = "http://localhost:11434",
+                },
+                schema = {
+                    model = {
+                        -- Recommended for agentic tool use
+                        default = "qwen2.5-coder:32b-instruct",
+                        -- Alternative if you want stock
+                        -- default = "deepseek-coder-v2:16b-lite-instruct",
+                    },
+                },
+            })
+        end,
     },
     strategies = {
-        chat = {
-            adapter = "copilot",
-        },
-        inline = {
-            adapter = "copilot",
-        },
-        agent = {
-            adapter = "copilot",
-        },
+        chat = { adapter = "copilot", },
+        inline = { adapter = "copilot", },
+        agent = { adapter = "copilot", },
     },
     display = {
         chat = {
