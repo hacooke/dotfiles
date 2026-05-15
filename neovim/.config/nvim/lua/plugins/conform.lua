@@ -12,7 +12,7 @@ return {
                 rust = { "rustfmt" },
                 javascript = { "prettier" },
                 typescript = { "prettier" },
-                json = { "prettier" },
+                json = { "jq", "prettier" },
                 yaml = { "prettier" },
                 markdown = { "prettier" },
                 bash = { "shfmt" },
