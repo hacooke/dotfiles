@@ -5,4 +5,4 @@ pkg_install waybar
 stow -d ~/dotfiles waybar
 
 # Dependencies
-# dotinstall <otherpackage>
+dotinstall NetworkManager

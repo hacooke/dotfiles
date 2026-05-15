@@ -15,7 +15,7 @@ window#waybar {
 tooltip {
     background-color: @bg-main;
     font-size: 2px;
-    color: @bg-main;
+    color: @fg-main;
 }
 
 tooltip label {

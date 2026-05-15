@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+COMMIT_MSG_FILE="$1"
+COMMIT_SOURCE="$2"
+
+# Only modify merge commits
+if [ "$COMMIT_SOURCE" = "merge" ]; then
+    MERGE_MSG=$(cat "$COMMIT_MSG_FILE")
+
+    # Extract the branch/ref being merged
+    # Default message format: "Merge branch 'X' of <url> into Y"
+    # or: "Merge branch 'X' into Y"
+
+    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+    # Extract the source branch name from the default merge message
+    SOURCE_BRANCH=$(echo "$MERGE_MSG" | sed -n "s/Merge branch '\([^']*\)'.*/\1/p")
+
+    if [ -n "$SOURCE_BRANCH" ] && [ -n "$CURRENT_BRANCH" ]; then
+        TAIL=$(tail -n +2 "$COMMIT_MSG_FILE")
+        echo "merge: $SOURCE_BRANCH into $CURRENT_BRANCH" > "$COMMIT_MSG_FILE"
+        echo -n "$TAIL" >> "$COMMIT_MSG_FILE"
+    fi
+fi

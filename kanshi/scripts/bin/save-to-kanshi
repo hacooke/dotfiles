@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+: 'save-to-kanshi - preserve current screen layout as kanshi profile'
+
+name=$1
+
+KANSHI_CONFIG=$XDG_CONFIG_HOME/kanshi/config
+
+if [ -z "$name" ]; then
+    echo "Usage: $0 <name>"
+    exit 1
+fi
+
+echo "Saving profile $name"
+
+echo -e "\nprofile $name {" >> $KANSHI_CONFIG
+hyprctl monitors -j | jq -r '.[] | 
+  "    output \"\(.make) \(.model) \(.serial)\" mode \(.width)x\(.height) position \(.x),\(.y) scale \(.scale)"' \
+  >> $KANSHI_CONFIG
+cat << EOF >> $KANSHI_CONFIG
+    exec source ~/scripts/config/wallpaper_reset.sh
+    exec source ~/scripts/config/launch_waybar.sh
+}
+EOF
+
+

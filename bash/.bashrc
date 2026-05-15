@@ -43,6 +43,7 @@ export PATH
 pathensure "$HOME/bin"
 pathensure "$HOME/.local/bin"
 pathensure "$HOME/scripts/bin"
+pathensure -p "$HOME/.cargo/bin"
 
 ## Aliases
 alias ls='ls --color'

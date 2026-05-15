@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+kanshictl reload
+hyprctl reload

@@ -6,7 +6,7 @@ shift
 PID=$(hyprctl -j clients | jq --arg title "$TITLE" '.[] | select(.title == $title) | .pid')
 
 if [ -z $PID ]; then
-    $TERMINAL --title=$TITLE $@
+    $TERMINAL --title=$TITLE "$@"
 # else
 #     kill $PID
 fi
