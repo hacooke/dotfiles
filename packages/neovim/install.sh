@@ -5,4 +5,4 @@ pkg_install neovim
 stow -d ~/dotfiles neovim
 
 # Dependencies
-dotinstall luarocks fzf ripgrep fd cmake yazi npm
+dotinstall luarocks fzf ripgrep fd cmake yazi npm cmake tree-sitter-cli
