@@ -226,6 +226,9 @@ function M.setup(user_cfg)
     map("n", "<leader>gc", function()
         vim.api.nvim_feedkeys(":Git ", "n", false)
     end, "Git: interactive command")
+    map("n", "<leader>gt", function()
+        vim.api.nvim_feedkeys(":Git ticket ", "n", false)
+    end, "Git: ticket (custom alias)")
 
     -- User commands for ex-mode usage
     vim.api.nvim_create_user_command("GitDiffReview", function(opts)

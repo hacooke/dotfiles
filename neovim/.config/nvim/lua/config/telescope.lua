@@ -54,7 +54,7 @@ local function switch_and_refresh(prompt_bufnr)
                     end
                 end
             end
-            if vim.fn.exists(':lsp restart') == 2 then vim.cmd('lsp restart') end
+            pcall(function() vim.cmd('lsp restart') end)
             if vim.fn.exists(':G') == 2 then
                 vim.cmd('G')
                 vim.cmd('only')

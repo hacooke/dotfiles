@@ -1,4 +1,15 @@
-vim.cmd[[colorscheme tokyonight-storm]]
+vim.cmd[[colorscheme catppuccin-mocha]]
+
+function syntaxhighlightchanges()
+    vim.api.nvim_set_hl(0, "@lsp.typemod.variable.readonly", { link = "@constant" })
+    vim.api.nvim_set_hl(0, "@lsp.type.variable", { link = "@variable" })
+end
+
+vim.api.nvim_create_autocmd("ColorScheme", {
+  callback = syntaxhighlightchanges,
+})
+
+syntaxhighlightchanges()
 -- -- Transparent background
 -- vim.g.transparent_background = 1
 -- function _G.transparent_background()
