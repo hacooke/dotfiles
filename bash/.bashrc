@@ -31,7 +31,7 @@ include $HOME/.config/system/config.sh
 # > system-specific variables
 
 ## Default programs
-export BROWSER="/usr/bin/qutebrowser"
+export BROWSER="/usr/sbin/firefox"
 export EDITOR="/usr/bin/nvim"
 export TERMINAL="/usr/bin/ghostty"
 

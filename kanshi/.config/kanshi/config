@@ -1,6 +1,5 @@
 output eDP-1 {
     mode 1920x1200@60.0
-    position 0,1440
     scale 1
     alias $LAPTOP
 }
@@ -41,7 +40,9 @@ output "Iiyama North America PL2492H 11511927A1383" {
 }
 
 profile docked {
-    output $LAPTOP enable
+    output $LAPTOP {
+        position 0,1440
+    }
     output $HOME_UW enable
     output $YODOIT enable
     exec source ~/scripts/config/wallpaper_reset.sh
@@ -68,6 +69,21 @@ profile dadoffice {
     }
     output $DADLEFT enable
     output $DADRIGHT enable
+    exec source ~/scripts/config/wallpaper_reset.sh
+    exec source ~/scripts/config/launch_waybar.sh
+}
+
+profile parentstv {
+    output HDMI-A-1 {
+        mode 4096x2160@60.00
+        position 0,0
+        scale 1
+    }
+    output eDP-1 {
+        mode 1920x1200@60.0
+        position 0,2160
+        scale 1
+    }
     exec source ~/scripts/config/wallpaper_reset.sh
     exec source ~/scripts/config/launch_waybar.sh
 }
