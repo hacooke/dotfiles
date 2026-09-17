@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+
+usage() {
+    cat <<EOF
+Usage:
+  $(basename "$0") <host> [options]
+
+Options:
+  --remote-path <path>   Remote path to mount (default: remote pwd)
+  --mount-point <path>   Local mount point (default: /mnt/<host>)
+  -h, --help             Show this help
+
+Examples:
+  $(basename "$0") edge-node
+  $(basename "$0") edge-node --remote-path /srv/data
+  $(basename "$0") edge-node --mount-point ~/mnt/edge
+EOF
+}
+
+SSH_HOST=""
+REMOTE_PATH=""
+MOUNTPOINT=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        --remote-path)
+            REMOTE_PATH="$2"
+            shift 2
+            ;;
+        --mount-point)
+            MOUNTPOINT="$2"
+            shift 2
+            ;;
+        -*)
+            echo "Unknown option: $1"
+            usage
+            exit 1
+            ;;
+        *)
+            if [[ -z "$SSH_HOST" ]]; then
+                SSH_HOST="$1"
+            else
+                echo "Unexpected argument: $1"
+                usage
+                exit 1
+            fi
+            shift
+            ;;
+    esac
+done
+
+if [[ -z "$SSH_HOST" ]]; then
+    usage
+    exit 1
+fi
+
+MOUNTPOINT="${MOUNTPOINT:-/mnt/${SSH_HOST}}"
+
+if [[ -z "$REMOTE_PATH" ]]; then
+    REMOTE_PATH=$(ssh "$SSH_HOST" 'pwd')
+fi
+
+# Clean up stale FUSE mount
+if [ -e "$MOUNTPOINT" ] && ! ls "$MOUNTPOINT" >/dev/null 2>&1; then
+    fusermount3 -uz "$MOUNTPOINT" 2>/dev/null
+fi
+
+# Create mountpoint if not exists
+if [ ! -d "$MOUNTPOINT" ]; then
+    read -p "$MOUNTPOINT does not exist, create it? [y/N] " ans
+    if [[ "$ans" =~ ^[Yy]$ ]]; then
+        sudo mkdir -p "$MOUNTPOINT"
+        sudo chown $USER:$USER "$MOUNTPOINT"
+    else
+        exit 1
+    fi
+fi
+
+sshfs "${SSH_HOST}:${REMOTE_PATH}" "$MOUNTPOINT" \
+-o allow_other \
+-o reconnect \
+-o ConnectTimeout=10 \
+-o StrictHostKeyChecking=yes \
+-o idmap=user \
+-o cache=yes \
+-o kernel_cache \
+-o compression=no
