@@ -60,7 +60,7 @@ alias pls='sudo !!'
 alias info='info --vi-keys'
 
 ## Binds
-bind -x '"":"tmux-sessionizer"'
+[[ $- == *i* ]] && command -v bind >/dev/null 2>&1 && bind -x '"":"tmux-sessionizer"'
 
 ## Yazi
 # Change working directory on exit (if started with y)
@@ -152,3 +152,5 @@ eval $(dircolors ~/.dircolors)
 #POWELINE_BASH_CONTINUATION=1
 #POWERLINE_BASH_SELECT=1
 #. /home/harry/.local/lib/python3.7/site-packages/powerline/bindings/bash/powerline.sh
+
+export STM32_PRG_PATH=/home/harry/sources/STM32CubProg/bin

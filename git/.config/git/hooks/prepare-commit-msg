@@ -2,23 +2,76 @@
 
 COMMIT_MSG_FILE="$1"
 COMMIT_SOURCE="$2"
+TYPE=0
 
-# Only modify merge commits
+# 0. Separate message from comments
+# ==============================================================================
+MSG_TEMP=$(mktemp)
+COMMENTS_TEMP=$(mktemp)
+
+# > Separate the file line by line
+while IFS= read -r line || [ -n "$line" ]; do
+    if [[ "$line" =~ ^# ]]; then
+        echo "$line" >> "$COMMENTS_TEMP"
+    else
+        echo "$line" >> "$MSG_TEMP"
+    fi
+done < "$COMMIT_MSG_FILE"
+
+# > Trim any trailing empty lines from the message body
+sed -i -e :a -e '/^\n*$/{$d;N;ba;}' "$MSG_TEMP"
+
+# 1. Standardize Merge Commits
+# ==============================================================================
 if [ "$COMMIT_SOURCE" = "merge" ]; then
-    MERGE_MSG=$(cat "$COMMIT_MSG_FILE")
-
+    TYPE=1
     # Extract the branch/ref being merged
     # Default message format: "Merge branch 'X' of <url> into Y"
     # or: "Merge branch 'X' into Y"
-
     CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-
     # Extract the source branch name from the default merge message
-    SOURCE_BRANCH=$(echo "$MERGE_MSG" | sed -n "s/Merge branch '\([^']*\)'.*/\1/p")
-
+    SOURCE_BRANCH=$(cat "$MSG_TEMP" | sed -n "s/Merge branch '\([^']*\)'.*/\1/p")
     if [ -n "$SOURCE_BRANCH" ] && [ -n "$CURRENT_BRANCH" ]; then
-        TAIL=$(tail -n +2 "$COMMIT_MSG_FILE")
-        echo "merge: $SOURCE_BRANCH into $CURRENT_BRANCH" > "$COMMIT_MSG_FILE"
-        echo -n "$TAIL" >> "$COMMIT_MSG_FILE"
+        TAIL=$(tail -n +2 "$MSG_TEMP")
+        echo "merge: $SOURCE_BRANCH into $CURRENT_BRANCH" > "$MSG_TEMP"
+        echo -n "$TAIL" >> "$MSG_TEMP"
     fi
 fi
+
+# 2. Standardize Revert Commits (Conventional Commits)
+# ==============================================================================
+# > Git treats reverts as a standard "message" source, so we check the text content
+if [ -f "$COMMIT_MSG_FILE" ] && grep -q "^Revert \"" "$COMMIT_MSG_FILE"; then
+    TYPE=2
+    # Extract the original commit summary wrapped in quotes
+    ORIG_SUMMARY=$(cat "$MSG_TEMP" | sed -n 's/Revert "\([^"]*\)".*/\1/p')
+    # Extract everything after the first line (the "This reverts commit <sha>" body)
+    TAIL=$(tail -n +2 "$MSG_TEMP")
+
+    if [ -n "$ORIG_SUMMARY" ]; then
+        echo "revert: $ORIG_SUMMARY" > "$MSG_TEMP"
+        echo "$TAIL" >> "$MSG_TEMP"
+    fi
+fi
+
+[[ $TYPE -gt 0 ]] || echo "" >> "$MSG_TEMP"
+
+# 3. Add Ticket Refs From Context
+# ==============================================================================
+STORED_TICKETS=$(git config --local --get git-context.tickets)
+TICKET_TAG="Refs:"
+
+if [ ! -z "$STORED_TICKETS" ]; then
+    TICKET_LIST=$(echo "$STORED_TICKETS" | sed 's/ /, /g')
+    echo "" >> "$MSG_TEMP"
+    # Ensure the ticket list isn't already typed in the message
+    if ! grep -q "$TICKET_LIST" "$MSG_TEMP"; then
+        echo "$TICKET_TAG $TICKET_LIST" >> "$MSG_TEMP"
+    fi
+fi
+
+# 4. Finalise and clean up
+# ==============================================================================
+cat "$MSG_TEMP" > "$COMMIT_MSG_FILE"
+cat "$COMMENTS_TEMP" >> "$COMMIT_MSG_FILE"
+rm "$MSG_TEMP" "$COMMENTS_TEMP"

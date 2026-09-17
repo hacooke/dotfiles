@@ -54,3 +54,5 @@ scrollback-limit = 2048
 
 # Keyboard protocol (modern terminals support this by default)
 # Ghostty supports enhanced keyboard protocols automatically
+
+gtk-single-instance = false

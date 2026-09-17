@@ -26,3 +26,8 @@
     tool = vimdiff
 [pull]
 	rebase = false
+[alias]
+    ticket = "!f() { if [ $# -eq 0 ]; then git config --local --get git-context.tickets; elif [[ $1 == \"clear\" ]]; then git config --local --unset git-context.tickets; echo \"Cleared active tickets\"; else git config --local git-context.tickets \"$*\"; echo \"Active tickets set to: $*\"; fi; }; f"
+[rerere]
+	enabled = true
+	autoupdate = true
