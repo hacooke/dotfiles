@@ -1,0 +1,61 @@
+{
+  "lastChangelogVersion": "0.85.1",
+  "theme": "catppuccin-mocha",
+  "defaultProvider": "github-copilot",
+  "defaultModel": "grok-4.5",
+  "defaultThinkingLevel": "medium",
+  "hideThinkingBlock": true,
+  "packages": [
+    "npm:pi-tool-display",
+    "npm:pi-footer-manager",
+    "npm:@jasonish/pi-default-model"
+  ],
+  "footerManager": {
+    "layout": {
+      "rows": [
+        {
+          "regions": [
+            {
+              "align": "left",
+              "fragments": [
+                "cwd.full",
+                "git.branch"
+              ]
+            },
+            {
+              "align": "right",
+              "fragments": [
+                "model.name",
+                "thinking.level"
+              ]
+            }
+          ]
+        },
+        {
+          "regions": [
+            {
+              "align": "left",
+              "fragments": [
+                "cost.total",
+                "cache.hit_counts",
+                "context.gauge"
+              ]
+            },
+            {
+              "align": "right",
+              "fragments": [
+                "statuses",
+                "quota.current"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "startupModel": {
+    "model": "github-copilot/gpt-6-luna",
+    "thinkingLevel": "medium"
+  },
+  "steeringMode": "one-at-a-time"
+}

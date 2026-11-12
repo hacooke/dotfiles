@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+set -e
+
+PLAN_FILE=".agents/PLAN.md"
+WORKTREE_DIR=".worktree-agent"
+BRANCH_NAME="agent-exec-$(date +%s)"
+
+mkdir -p .agents
+
+# -------------------------------------------------------------------
+# STAGE 1: Interactive Planning Phase
+# Model: High Reasoning (Claude 3.7 Sonnet / Thinking)
+# -------------------------------------------------------------------
+echo "=========================================================="
+echo " STAGE 1: PLANNING (Claude 3.7 Sonnet)"
+echo " Pre-set context loaded. Type your initial prompt."
+echo " When PLAN.md is finalized, type '/quit' to advance."
+echo "=========================================================="
+
+pi \
+  --model claude-3-7-sonnet \
+  --system-prompt "You are a lead architect. Work with the user to refine the implementation steps. Once agreed upon, write the finalized step-by-step plan into '${PLAN_FILE}'."
+
+# Check if PLAN.md was created
+if [ ! -f "$PLAN_FILE" ]; then
+    echo "Error: ${PLAN_FILE} was not created. Aborting."
+    exit 1
+fi
+
+echo -e "\n Plan finalized at ${PLAN_FILE}. Advancing to Stage 2...\n"
+
+# -------------------------------------------------------------------
+# STAGE 2: Interactive Execution Phase (In Git Worktree)
+# Model: Cheap / Fast Worker (DeepSeek V3 / GPT-4o-mini)
+# -------------------------------------------------------------------
+echo "=========================================================="
+echo " STAGE 2: EXECUTION (DeepSeek V3 / Cheap Worker)"
+echo " Creating isolated Git Worktree..."
+echo "=========================================================="
+
+# Create clean isolated worktree
+git worktree add -b "$BRANCH_NAME" "$WORKTREE_DIR"
+cd "$WORKTREE_DIR"
+
+echo "=========================================================="
+echo " Worktree ready. Launching execution agent with PLAN.md."
+echo " When implementation is complete, type '/quit' to advance."
+echo "=========================================================="
+
+# Launch interactive pi inside worktree with lower-cost model pre-configured
+pi \
+  --model deepseek-v3 \
+  --system-prompt "You are a code execution worker. Read '../${PLAN_FILE}' for instructions. Implement the required changes cleanly without modifying the plan."
+
+# -------------------------------------------------------------------
+# STAGE 3: Zero-Token Verification & Automated Checks
+# -------------------------------------------------------------------
+echo -e "\n Running local test checks (0 Token Overhead)..."
+if npm test 2>/dev/null || pytest 2>/dev/null || cargo check 2>/dev/null; then
+    echo " SUCCESS: Tests passed!"
+else
+    echo " WARNING: Verification failed or no tests found."
+fi
+
+# Cleanup worktree & return to main workspace
+cd ..
+echo "=========================================================="
+echo " STAGE 3: Final Review & Merge"
+echo " Worktree branch: ${BRANCH_NAME}"
+echo " Review diff with: git diff main..${BRANCH_NAME}"
+echo "=========================================================="
+
+read -p "Merge changes into current branch and cleanup worktree? (y/n): " MERGE_CHOICE
+if [ "$MERGE_CHOICE" = "y" ]; then
+    git merge "$BRANCH_NAME"
+    git worktree remove "$WORKTREE_DIR"
+    git branch -d "$BRANCH_NAME"
+    echo " Successfully merged and cleaned up!"
+else
+    echo " Changes kept on branch '${BRANCH_NAME}'. Worktree preserved at '${WORKTREE_DIR}'."
+fi

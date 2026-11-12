@@ -1,0 +1,23 @@
+{
+  "providers": {
+    "github-copilot": {
+      "modelOverrides": {
+        "gpt-5.3-codex": {
+          "contextWindow": 272000
+        },
+        "gpt-5.4-mini": {
+          "contextWindow": 272000
+        },
+        "gpt-5-mini": {
+          "contextWindow": 272000
+        },
+        "gpt-5.4": {
+          "contextWindow": 272000
+        },
+        "gpt-5.5": {
+          "contextWindow": 272000
+        }
+      }
+    }
+  }
+}
