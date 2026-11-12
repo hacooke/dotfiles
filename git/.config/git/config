@@ -22,8 +22,10 @@
 	defaultBranch = main
 [diff]
     tool = vimdiff
+	algorithm = histogram
 [merge]
     tool = vimdiff
+	conflictstyle = diff3
 [pull]
 	rebase = false
 [alias]

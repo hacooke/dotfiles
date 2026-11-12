@@ -3,28 +3,31 @@ pathensure() {
 
     If -p option given, prepend to beginning of PATH, else append to end
     '
-    local prepend=false
+    local OPTIND=1 opt prepend=false pathadd i
+    local -a paths
     while getopts "p" opt; do
         case "$opt" in
             p) prepend=true;;
         esac
     done
     shift $((OPTIND-1))
-    # reverse args if prepending
+    paths=("$@")
+
+    # Process each path, reversing order when prepending
     if [ "$prepend" = true ]; then
-        paths=($(printf "%s\n" $@ | tac))
+        for ((i=${#paths[@]} - 1; i >= 0; i--)); do
+            pathadd=${paths[i]}
+            if [[ "$PATH" =~ (^|:)"$pathadd"(:|$) ]]; then
+                continue
+            fi
+            export PATH="$pathadd:$PATH"
+        done
     else
-        paths=($@)
+        for pathadd in "${paths[@]}"; do
+            if [[ "$PATH" =~ (^|:)"$pathadd"(:|$) ]]; then
+                continue
+            fi
+            export PATH="$PATH:$pathadd"
+        done
     fi
-    # Process each path
-    for pathadd in "${paths[@]}"; do
-        if [[ "$PATH" =~ (^|:)"$pathadd"(:|$) ]]; then
-            continue
-        fi
-        if [ "$prepend" = true ]; then
-            export PATH=$pathadd:$PATH
-        else
-            export PATH=$PATH:$pathadd
-        fi
-    done
 }
