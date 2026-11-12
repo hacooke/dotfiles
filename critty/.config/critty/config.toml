@@ -1,0 +1,7 @@
+# Review in a Herdr split; fall back to Critty's normal launchers elsewhere.
+launchers = ["custom:critty-herdr-split"]
+cleanup_on_approve = true
+
+[prompts]
+on_finish_approved = "inline:{{if .comments_json}}{{.comments_json}}{{end}}"
+on_finish_unresolved = "inline:{{if .comments_json}}{{.comments_json}}{{end}}"

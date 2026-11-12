@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+operation=${1:?expected check, open, or close}
+request=$(cat)
+
+source_pane() {
+    local terminal_id=$1
+    herdr-app ls | jq -er --arg terminal "$terminal_id" '
+        [.spaces[].tabs[].terminals[] | select(.terminal == $terminal) | .pane]
+        | if length == 1 then .[0] else error("source terminal not shown in Herdr") end
+    '
+}
+
+case "$operation" in
+    check)
+        command -v herdr-app >/dev/null
+        command -v jq >/dev/null
+        source_pane "${HC_TERMINAL_ID:?missing Herdr terminal context}" >/dev/null
+        ;;
+    open)
+        terminal_id=${HC_TERMINAL_ID:?missing Herdr terminal context}
+        pane=$(source_pane "$terminal_id")
+        cwd=$(jq -er '.cwd' <<<"$request")
+        command=$(jq -er '.command' <<<"$request")
+        split_request=$(jq -cn \
+            --arg pane "$pane" \
+            --arg cwd "$cwd" \
+            --arg command "$command" \
+            '{direction:"right",pane:$pane,argv:["/bin/sh","-c",("cd -- "+($cwd|@sh)+" && exec "+$command)]}')
+        reply=$(herdr-app do pane.split "$split_request")
+        review_pane=$(jq -er '.pane' <<<"$reply")
+        jq -cn --arg pane "$review_pane" --arg source_terminal "$terminal_id" \
+            '{pane:$pane,source_terminal:$source_terminal}'
+        ;;
+    close)
+        review_pane=$(jq -er '.pane' <<<"$request")
+        source_terminal=$(jq -er '.source_terminal' <<<"$request")
+        close_request=$(jq -cn --arg pane "$review_pane" '{pane:$pane}')
+        if ! herdr-app do pane.close "$close_request" >/dev/null; then
+            if herdr-app ls | jq -e --arg pane "$review_pane" \
+                '[.spaces[].tabs[].terminals[] | select(.pane == $pane)] | length > 0' >/dev/null; then
+                echo "Could not close Critty pane $review_pane" >&2
+                exit 1
+            fi
+        fi
+        focus_request=$(jq -cn --arg terminal "$source_terminal" '{terminal:$terminal}')
+        herdr-app do pane.focus "$focus_request" >/dev/null 2>&1 || true
+        ;;
+    *)
+        echo "unknown operation: $operation" >&2
+        exit 2
+        ;;
+esac
