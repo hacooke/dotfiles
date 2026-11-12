@@ -1,0 +1,21 @@
+theme = "catppuccin-mocha"
+diff_view = "side-by-side"      # or "unified"
+mouse = true
+leader = " "                    # configurable prefix for leader shortcuts
+comment_vim = true              # vim modal editing in the review comment box
+relative_line_numbers = true    # show rendered-row distances in the diff gutter
+review_watch_interval_ms = 1000 # set to 0 to disable persisted-review polling
+
+# ignore_whitespace = false     # ignore all whitespace in local VCS diffs
+
+comment_types = [
+  { id = "issue", color = "red", definition = "must fix" },
+  { id = "question", definition = "ask for clarification", color = "yellow" },
+  { id = "suggestion", color = "blue", definition = "possible improvements" },
+  { id = "nitpick", definition = "small optional tweaks", color = "orange" },
+  { id = "style", color = "magenta", definition = "style change" },
+  { id = "praise", color="green", definition = "positive feedback" },
+]
+
+[forge]
+comment_type_prefix = false
