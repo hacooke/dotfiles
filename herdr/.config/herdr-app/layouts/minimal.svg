@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="200" viewBox="0 0 320 200">
+  <rect width="320" height="200" rx="8" fill="#1e1e2e"/>
+  <path d="M8 2h38v20H8a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z" fill="#89b4fa"/>
+  <text x="11" y="16" fill="#1e1e2e" font-family="monospace" font-size="9">▣ local</text>
+  <path d="M46 2h65a4 4 0 0 1 4 4v12a4 4 0 0 1-4 4H46z" fill="#cba6f7"/>
+  <text x="56" y="16" fill="#1e1e2e" font-family="monospace" font-size="9">herdr</text>
+  <path d="M120 5v14" stroke="#45475a"/>
+  <rect x="127" y="2" width="43" height="20" rx="3" fill="#f5c2e7"/>
+  <text x="137" y="16" fill="#1e1e2e" font-family="monospace" font-size="9">Pi</text>
+  <path d="M177 6v12" stroke="#45475a"/>
+  <text x="184" y="16" fill="#a6adc8" font-family="monospace" font-size="9">Neovim</text>
+  <path d="M289 2h31v20h-31a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z" fill="#a6e3a1"/>
+  <text x="293" y="16" fill="#1e1e2e" font-family="monospace" font-size="9">◉ ●</text>
+  <rect x="0" y="28" width="320" height="172" fill="#11111b"/>
+  <text x="12" y="49" fill="#a6e3a1" font-family="monospace" font-size="9">$ terminal</text>
+  <rect x="12" y="56" width="5" height="10" fill="#cdd6f4"/>
+</svg>

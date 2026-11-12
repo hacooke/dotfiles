@@ -1,0 +1,185 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+CONFIG_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/herdr-sessionizer/herdr-sessionizer.conf"
+HS_SEARCH_PATHS=("$HOME")
+HS_EXTRA_SEARCH_PATHS=()
+HS_MAX_DEPTH=1
+
+if [[ -f "$CONFIG_FILE" ]]; then
+    # shellcheck source=/dev/null
+    source "$CONFIG_FILE"
+fi
+
+use_rofi=false
+rofi_prompt="herdr-session: "
+
+while (($#)); do
+    case "$1" in
+        --rofi)
+            use_rofi=true
+            ;;
+        --rofi-prompt)
+            if (($# < 2)); then
+                echo "herdr-sessionizer: --rofi-prompt requires a value" >&2
+                exit 2
+            fi
+            rofi_prompt=$2
+            shift
+            ;;
+        -h|--help)
+            cat <<'EOF'
+Usage: herdr-sessionizer [--rofi] [--rofi-prompt PROMPT]
+
+Pick an existing Herdr space or a project directory. Existing spaces are
+selected; directories without a space open in a new one.
+EOF
+            exit 0
+            ;;
+        *)
+            echo "herdr-sessionizer: unknown option: $1" >&2
+            exit 2
+            ;;
+    esac
+    shift
+done
+
+for command_name in herdr-app jq realpath; do
+    if ! command -v "$command_name" >/dev/null 2>&1; then
+        echo "herdr-sessionizer: missing required command: $command_name" >&2
+        exit 1
+    fi
+done
+
+if [[ "$use_rofi" == true ]]; then
+    if ! command -v rofi >/dev/null 2>&1; then
+        echo "herdr-sessionizer: rofi is not installed" >&2
+        exit 1
+    fi
+elif ! command -v fzf >/dev/null 2>&1; then
+    echo "herdr-sessionizer: fzf is not installed" >&2
+    exit 1
+fi
+
+spaces_json='{"spaces":[]}'
+herdr_app_running=false
+if live_spaces=$(herdr-app ls 2>/dev/null) && jq -e '.spaces | type == "array"' >/dev/null <<<"$live_spaces"; then
+    spaces_json=$live_spaces
+    herdr_app_running=true
+elif core_terminals=$(hc ls --json 2>/dev/null) && jq -e '.terminals | type == "array"' >/dev/null <<<"$core_terminals"; then
+    declare -A seen_core_spaces=()
+    core_spaces=()
+    while IFS= read -r terminal_address; do
+        terminal_info=$(hc get "$terminal_address" --json 2>/dev/null) || continue
+        space_id=$(jq -r '.labels["herdr.space"] // empty' <<<"$terminal_info")
+        [[ -n "$space_id" && -z "${seen_core_spaces[$space_id]+x}" ]] || continue
+        seen_core_spaces["$space_id"]=1
+
+        space_folder=$(jq -r '.cwd // empty' <<<"$terminal_info")
+        space_name=$(jq -r '.labels.where // empty' <<<"$terminal_info")
+        if [[ -n "$space_name" ]]; then
+            space_name=${space_name% / *}
+        else
+            space_name=${space_folder##*/}
+        fi
+        [[ -n "$space_name" ]] || space_name=unnamed
+        core_spaces+=("$(jq -cn --arg id "$space_id" --arg name "$space_name" --arg folder "$space_folder" \
+            '{id: $id, name: $name, folder: $folder, machine: ""}')")
+    done < <(jq -r '.terminals[].address' <<<"$core_terminals")
+    spaces_json=$(printf '%s\n' "${core_spaces[@]}" | jq -s '{spaces: .}')
+fi
+
+ensure_herdr_app() {
+    [[ "$herdr_app_running" == true ]] && return 0
+
+    herdr-app >/dev/null 2>&1 &
+    for _ in {1..100}; do
+        if live_spaces=$(herdr-app ls 2>/dev/null) && jq -e '.spaces | type == "array"' >/dev/null <<<"$live_spaces"; then
+            herdr_app_running=true
+            return 0
+        fi
+        sleep 0.1
+    done
+
+    echo "herdr-sessionizer: Herdr app did not become ready" >&2
+    return 1
+}
+
+declare -a choices=() choice_types=() choice_values=()
+declare -A existing_local_folders=() discovered_folders=()
+
+while IFS=$'\t' read -r space_id space_name space_folder machine_name; do
+    [[ -n "$space_id" ]] || continue
+    display_folder=${space_folder:-unknown folder}
+    [[ -n "$machine_name" ]] && display_folder="$machine_name:$display_folder"
+    short_id=${space_id:0:8}
+    choices+=("[space] ${space_name:-unnamed} — $display_folder ($short_id)")
+    choice_types+=(space)
+    choice_values+=("$space_id")
+
+    if [[ -z "$machine_name" && -n "$space_folder" && -d "$space_folder" ]]; then
+        canonical_folder=$(realpath -e -- "$space_folder")
+        existing_local_folders["$canonical_folder"]=1
+    fi
+done < <(jq -r '.spaces[] | [.id, (.name // ""), (.folder // ""), (.machine // "")] | @tsv' <<<"$spaces_json")
+
+for entry in "${HS_SEARCH_PATHS[@]}" "${HS_EXTRA_SEARCH_PATHS[@]}"; do
+    [[ -n "$entry" ]] || continue
+    search_path=$entry
+    max_depth=${HS_MAX_DEPTH:-1}
+
+    if [[ "$entry" =~ ^(.+):([0-9]+)$ ]]; then
+        search_path=${BASH_REMATCH[1]}
+        max_depth=${BASH_REMATCH[2]}
+    fi
+    if [[ "$search_path" == '~' ]]; then
+        search_path=$HOME
+    elif [[ "$search_path" == '~/'* ]]; then
+        search_path="$HOME/${search_path#~/}"
+    fi
+    [[ -d "$search_path" ]] || continue
+
+    while IFS= read -r -d '' directory; do
+        canonical_folder=$(realpath -e -- "$directory")
+        [[ -z "${existing_local_folders[$canonical_folder]+x}" ]] || continue
+        [[ -z "${discovered_folders[$canonical_folder]+x}" ]] || continue
+        discovered_folders["$canonical_folder"]=1
+        choices+=("[new] $canonical_folder")
+        choice_types+=(new)
+        choice_values+=("$canonical_folder")
+    done < <(find "$search_path" -mindepth 1 -maxdepth "$max_depth" \
+        -path '*/.git' -prune -o -type d -print0 2>/dev/null)
+done
+
+if ((${#choices[@]} == 0)); then
+    echo "herdr-sessionizer: no Herdr spaces or project directories found" >&2
+    exit 0
+fi
+
+if [[ "$use_rofi" == true ]]; then
+    if ! selected=$(printf '%s\n' "${choices[@]}" | rofi -dmenu -p "$rofi_prompt"); then
+        exit 0
+    fi
+else
+    if ! selected=$(printf '%s\n' "${choices[@]}" | fzf --prompt "$rofi_prompt"); then
+        exit 0
+    fi
+fi
+[[ -n "$selected" ]] || exit 0
+ensure_herdr_app || exit 1
+
+for index in "${!choices[@]}"; do
+    [[ "${choices[$index]}" == "$selected" ]] || continue
+    case "${choice_types[$index]}" in
+        space)
+            exec herdr-app do space.select --id "${choice_values[$index]}"
+            ;;
+        new)
+            exec herdr-app do space.new --folder "${choice_values[$index]}"
+            ;;
+    esac
+done
+
+echo "herdr-sessionizer: selected item did not match a choice" >&2
+exit 1
