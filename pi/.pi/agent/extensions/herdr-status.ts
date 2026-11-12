@@ -10,7 +10,8 @@ function isHerdrTui(ctx: ExtensionContext): boolean {
 function report(state: State, options: { kind?: BlockedKind; message?: string } = {}): void {
 	const fields = [`state=${state}`, "app=pi"];
 	if (options.kind) fields.push(`kind=${options.kind}`);
-	if (options.message) fields.push(`msg=${Buffer.from(options.message, "utf8").toString("base64")}`);
+	const message = options.message?.replace(/[\u0000-\u001f\u007f-\u009f]/g, " ").replace(/\s+/g, " ").trim();
+	if (message) fields.push(`msg=${Buffer.from(message, "utf8").toString("base64")}`);
 	process.stdout.write(`\x1b]7501;${fields.join(":")}\x1b\\`);
 }
 

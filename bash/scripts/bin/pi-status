@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+
+set -u
+
+usage() {
+    cat <<'EOF'
+Usage: pi-status [--rofi]
+
+Show live pi instances and their status. With --rofi, open a selectable
+Rofi list; selecting an instance switches tmux to its pane.
+EOF
+}
+
+case "${1:-}" in
+    -h|--help)
+        usage
+        exit 0
+        ;;
+    --rofi)
+        rofi_mode=true
+        ;;
+    "")
+        rofi_mode=false
+        ;;
+    *)
+        usage >&2
+        exit 2
+        ;;
+esac
+
+if ! command -v ps >/dev/null 2>&1; then
+    echo "pi-status: ps is required" >&2
+    exit 1
+fi
+if [[ "$rofi_mode" == true ]] && ! command -v rofi >/dev/null 2>&1; then
+    echo "pi-status: rofi is required for --rofi" >&2
+    exit 1
+fi
+
+entries=()
+targets=()
+working_count=0
+waiting_count=0
+unknown_count=0
+
+# Existing pi processes expose no status API. Infer busy state from the TUI's
+# visible Working indicator; absence of that indicator means waiting for input.
+# Match running pi processes to tmux panes by their controlling TTY.
+while IFS='|' read -r pane_tty session_name window_index pane_index pane_path; do
+    [[ -n "$pane_tty" ]] || continue
+    pane_tty=${pane_tty#/dev/}
+
+    while IFS=$'\t' read -r pid process_tty process_name; do
+        [[ "$process_name" == "pi" && "$process_tty" == "$pane_tty" ]] || continue
+
+        if tmux capture-pane -p -t "$session_name:$window_index.$pane_index" 2>/dev/null \
+            | grep -Eq '──[[:space:]]+[^[:space:]]+[[:space:]]+Working[[:space:]─]'; then
+            status="WORKING"
+            marker="●"
+            ((working_count += 1))
+        else
+            status="WAITING"
+            marker="○"
+            ((waiting_count += 1))
+        fi
+
+        project=${pane_path/#"$HOME"/~}
+        entries+=("$marker $status  $session_name:$window_index.$pane_index  $project")
+        targets+=("$session_name:$window_index.$pane_index")
+    done < <(ps -eo pid=,tty=,comm= | awk '$3 == "pi" { print $1 "\t" $2 "\t" $3 }')
+done < <(tmux list-panes -a -F '#{pane_tty}|#{session_name}|#{window_index}|#{pane_index}|#{pane_current_path}' 2>/dev/null || true)
+
+# Include pi processes outside tmux instead of silently omitting them.
+while IFS=$'\t' read -r pid process_tty process_name; do
+    [[ "$process_name" == "pi" ]] || continue
+    [[ "$process_tty" != "?" ]] || process_tty=""
+    already_listed=false
+    for target in "${targets[@]}"; do
+        [[ -n "$target" ]] || continue
+        pane_tty=$(tmux display-message -p -t "$target" '#{pane_tty}' 2>/dev/null || true)
+        [[ "${pane_tty#/dev/}" == "$process_tty" ]] && already_listed=true && break
+    done
+    if [[ "$already_listed" == false ]]; then
+        project=$(readlink "/proc/$pid/cwd" 2>/dev/null || printf 'unknown directory')
+        entries+=("? STATUS UNKNOWN  not in a tmux pane  $project")
+        targets+=("")
+        ((unknown_count += 1))
+    fi
+done < <(ps -eo pid=,tty=,comm= | awk '$3 == "pi" { print $1 "\t" $2 "\t" $3 }')
+
+if ((${#entries[@]} == 0)); then
+    if [[ "$rofi_mode" == true ]]; then
+        printf 'No pi instances found\n' | rofi -dmenu -p 'Pi status' >/dev/null
+    else
+        echo "No pi instances found."
+    fi
+    exit 0
+fi
+
+if [[ "$rofi_mode" == false ]]; then
+    printf 'Pi instances: %d working, %d waiting, %d unknown\n' "$working_count" "$waiting_count" "$unknown_count"
+    printf '%s\n' "${entries[@]}"
+    exit 0
+fi
+
+rofi_prompt="Pi: $working_count working, $waiting_count waiting"
+((unknown_count == 0)) || rofi_prompt+="; $unknown_count unknown"
+selection=$(printf '%s\n' "${entries[@]}" | rofi -dmenu -format i -p "$rofi_prompt") || exit 0
+[[ "$selection" =~ ^[0-9]+$ ]] || exit 0
+selected_target=${targets[$selection]:-}
+[[ -n "$selected_target" ]] || exit 0
+
+selected_session=${selected_target%%:*}
+selected_window=${selected_target#*:}
+selected_window=${selected_window%.*}
+if [[ -n "${TMUX:-}" ]]; then
+    tmux switch-client -t "$selected_session" || exit 1
+else
+    # A desktop hotkey has no TMUX environment. Switch the most recently
+    # active attached client, matching tmux-sessionizer's external behavior.
+    client_tty=$(tmux list-clients -F '#{client_tty}|#{client_activity}' 2>/dev/null \
+        | sort -t'|' -k2,2nr | head -n1 | cut -d'|' -f1)
+    if [[ -z "$client_tty" ]]; then
+        echo "pi-status: no attached tmux client to switch" >&2
+        exit 1
+    fi
+    tmux switch-client -c "$client_tty" -t "$selected_session" || exit 1
+fi
+
+tmux select-window -t "$selected_session:$selected_window" || exit 1
+tmux select-pane -t "$selected_target"
