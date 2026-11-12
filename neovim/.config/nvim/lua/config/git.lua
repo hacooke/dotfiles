@@ -19,9 +19,12 @@ local function has_fugitive()
     return vim.fn.exists(":Git") == 2 and vim.fn.exists(":Gvdiffsplit") == 2
 end
 
-local function run_git(args)
+local function run_git(args, cwd)
     -- returns { ok:boolean, out:table<string>, code:number }
     local cmd = { "git" }
+    if cwd and cwd ~= "" then
+        vim.list_extend(cmd, { "-C", cwd })
+    end
     vim.list_extend(cmd, args or {})
     local out = vim.fn.systemlist(cmd)
     local code = vim.v.shell_error
@@ -58,6 +61,38 @@ local function prompt_target(default)
     if input == nil then return nil end
     input = vim.trim(input)
     return (input == "" and default or input)
+end
+
+local function populate_conflict_quickfix()
+    local ok, out, code = run_git({ "grep", "-n", "-I", "-E", "^(<{7}|={7}|>{7})" })
+    if not ok then
+        if code == 1 then
+            notify("No conflict markers found", vim.log.levels.INFO)
+        else
+            notify("Failed to search conflict markers", vim.log.levels.ERROR)
+        end
+        vim.fn.setqflist({}, "r", { title = "Conflict markers", items = {} })
+        return
+    end
+
+    local items = {}
+    for _, line in ipairs(out) do
+        local filename, lnum, text = line:match("^(.-):(%d+):(.*)$")
+        if filename and lnum then
+            table.insert(items, {
+                filename = filename,
+                lnum = tonumber(lnum),
+                text = text,
+            })
+        end
+    end
+
+    vim.fn.setqflist({}, "r", { title = "Conflict markers", items = items })
+    if #items > 0 then
+        vim.cmd("copen")
+    else
+        notify("No conflict markers found", vim.log.levels.INFO)
+    end
 end
 
 -- --- Core actions -----------------------------------------------------------
@@ -115,6 +150,10 @@ function M.inline_diff(opts)
         return
     end
     vim.cmd("Git diff --patch --minimal " .. vim.fn.fnameescape(target))
+end
+
+function M.conflict_markers_qf()
+    populate_conflict_quickfix()
 end
 
 -- --- Interactive wrappers ---------------------------------------------------
@@ -230,6 +269,45 @@ function M.setup(user_cfg)
         vim.api.nvim_feedkeys(":Git ticket ", "n", false)
     end, "Git: ticket (custom alias)")
 
+    -- Conflict resolution helpers
+    map("n", "<leader>gkl", M.conflict_markers_qf, "Git Conflict: populate quickfix")
+    map("n", "<leader>gkk", function()
+        if has_fugitive() then vim.cmd("Gvdiffsplit! | e") else notify("vim-fugitive not found.", vim.log.levels.WARN) end
+    end, "Git Conflict: 3-way diff split")
+
+    vim.api.nvim_create_autocmd("OptionSet", {
+        pattern = "diff",
+        callback = function()
+            -- Only run when diff mode turns ON
+            if vim.v.option_new == true or vim.v.option_new == "1" then
+              local opts = { buffer = 0, silent = true }
+
+              -- Pull versions directly into middle working window
+              vim.keymap.set('n', 'gh', ':diffget //2<CR>', vim.tbl_extend('force', opts, { desc = 'Diffget Ours (HEAD)' }))
+              vim.keymap.set('n', 'gl', ':diffget //3<CR>', vim.tbl_extend('force', opts, { desc = 'Diffget Theirs (MERGE_HEAD)' }))
+              vim.keymap.set('n', 'gb', ':diffget //1<CR>', vim.tbl_extend('force', opts, { desc = 'Diffget Base (Common Ancestor)' }))
+
+              -- Pop a 4th horizontal split showing the Common Ancestor (:1) on top
+              vim.keymap.set('n', 'g4', function()
+                  -- Open current buffer in a new tab
+                  vim.cmd('tab split')
+                  -- 2. Diff against Common Ancestor (:1).
+                  --    Fugitive & Vim diff engine handle cursor positioning/hunk alignment automatically!
+                  vim.cmd('Gvdiffsplit :1')
+                  -- 3. Focus the Ancestor window and close the working file split
+                  vim.cmd('wincmd l') -- Focus right window (Ancestor :1)
+                  vim.cmd('only')     -- Keep ONLY the Ancestor window open in this tab
+                  -- Split left to view 'Ours' (:2) vs Ancestor
+                  vim.cmd('leftabove Gvdiffsplit :2')
+                  vim.cmd('wincmd l') -- Focus middle/ancestor window
+                  -- Split right to view Ancestor vs 'Theirs' (:3)
+                  vim.cmd('rightbelow Gvdiffsplit :3')
+                  vim.cmd('wincmd h') -- Focus middle/ancestor window
+                end, vim.tbl_extend('force', opts, { desc = 'Open Ours vs Base vs Theirs in new tab' }))
+            end
+        end,
+    })
+
     -- User commands for ex-mode usage
     vim.api.nvim_create_user_command("GitDiffReview", function(opts)
         local target = opts.args ~= "" and opts.args or nil
@@ -250,6 +328,11 @@ function M.setup(user_cfg)
         local target = opts.args ~= "" and opts.args or nil
         M.inline_diff({ target = target })
     end, { nargs = "?" })
+
+    vim.api.nvim_create_user_command("GitConflictMarkers", function()
+        M.conflict_markers_qf()
+    end, {})
+
 end
 
 return M

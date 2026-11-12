@@ -15,6 +15,7 @@ return {
                 json = { "jq", "prettier" },
                 yaml = { "prettier" },
                 markdown = { "prettier" },
+                xml = { "xmlformat" },
                 bash = { "shfmt" },
                 sh = { "shfmt" },
             },
@@ -23,6 +24,9 @@ return {
             --     lsp_fallback = true,
             -- },
             formatters = {
+                clang_format = {
+                    prepend_args = { "--style=file" },
+                },
                 ruff_format = {
                     command = "ruff",
                     args = { "format", "--stdin-filename", "$FILENAME", "-" },
@@ -47,6 +51,11 @@ return {
                     -- Optional: Use rustfmt config file if it exists
                     -- rustfmt will automatically look for rustfmt.toml or .rustfmt.toml
                     -- in the project root or use these inline options
+                },
+                xmlformat = {
+                    command = "xmlformat",
+                    args = { "-" },
+                    stdin = true,
                 },
             },
         },

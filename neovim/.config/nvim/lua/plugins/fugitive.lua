@@ -1,5 +1,4 @@
 return {
-    {
-        "tpope/vim-fugitive"
-    },
+    { "tpope/vim-fugitive" },
+    { 'akinsho/git-conflict.nvim', version = "*", config = true },
 }

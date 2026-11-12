@@ -17,13 +17,19 @@ return {
             color_overrides = {},
             custom_highlights = function(colors)
                 return {
-                    NormalFloat     = { bg = "NONE" },
-                    FloatBorder     = { bg = "NONE" },
-                    TelescopeNormal = { link = "Normal" },
-                    TelescopeBorder = { link = "FloatBorder" },
-                    TabLineSel      = { bg = colors.base },
-                    TabLine         = { bg = "NONE" },
-                    WinSeparator    = { link = "FloatBorder" },
+                    NormalFloat              = { bg = "NONE" },
+                    FloatBorder              = { bg = "NONE" },
+                    TelescopeNormal          = { link = "Normal" },
+                    TelescopeBorder          = { link = "FloatBorder" },
+                    TabLineSel               = { bg = colors.base },
+                    TabLine                  = { bg = "NONE" },
+                    WinSeparator             = { link = "FloatBorder" },
+                    GitConflictCurrentLabel  = { bg = colors.sapphire, fg = colors.base },
+                    GitConflictCurrent       = { bg = colors.surface0 },
+                    GitConflictAncestorLabel = { bg = colors.peach, fg = colors.base },
+                    GitConflictAncestor      = { bg = colors.surface0 },
+                    GitConflictIncomingLabel = { bg = colors.red, fg = colors.base },
+                    GitConflictIncoming      = { bg = colors.surface0 },
                 }
             end,
         }

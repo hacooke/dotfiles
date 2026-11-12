@@ -54,9 +54,9 @@ vim.lsp.config.clangd = {
         "--header-insertion=iwyu",
         "--completion-style=detailed",
         "--function-arg-placeholders",
-        "--fallback-style=llvm",
+        "--fallback-style=Google",
         -- Add Arduino-specific flags
-        "--query-driver=/usr/bin/avr-g++,/usr/bin/arm-none-eabi-g++",
+        "--query-driver=/usr/bin/avr-g++,/usr/bin/arm-none-eabi-g++,/usr/sbin/arm-none-eabi-g++",
     },
     filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
     root_markers = {
@@ -99,7 +99,7 @@ vim.lsp.config.rust_analyzer = {
                 },
             },
             check = {
-                command = "check",
+                command = "clippy",
             },
             procMacro = {
                 enable = true,
@@ -121,7 +121,7 @@ vim.lsp.config.rust_analyzer = {
 }
 
 vim.lsp.config.ruff = {
-    cmd = { "ruff", "server" },
+    cmd = { "uv", "run", "ruff", "server" },
     filetypes = { "python" },
     root_markers = { "pyproject.toml", "ruff.toml", ".ruff.toml", ".git" },
     capabilities = capabilities,
@@ -148,6 +148,13 @@ vim.lsp.config.yamlls = {
     capabilities = capabilities,
 }
 
+vim.lsp.config.ts_ls = {
+    cmd = { "typescript-language-server", "--stdio" },
+    filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+    root_markers = { "tsconfig.json", "jsconfig.json", "package.json", ".git" },
+    capabilities = capabilities,
+}
+
 vim.lsp.enable({
     "lua_ls",
     "basedpyright",
@@ -155,6 +162,7 @@ vim.lsp.enable({
     "bashls",
     "jsonls",
     "yamlls",
+    "ts_ls",
     "clangd",
     "rust_analyzer",
     --"arduino_language_server",
