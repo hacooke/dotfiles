@@ -68,7 +68,8 @@
     "shift-f2": "space.rename"
   },
   "layout:minimal": {
-    "alt-g": "mod.open:minimal-picker"
+    "alt-g": "mod.open:minimal-picker",
+    "alt-s": "mod.open:minimal-space-picker"
   },
   "terminal": {
     "ctrl-backspace": "send:\u0017",

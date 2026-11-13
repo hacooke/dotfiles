@@ -71,13 +71,7 @@
                   "radius": 8,
                   "background": "background",
                   "border": { "width": 1, "color": "border" },
-                  "focus": { "width": 1, "color": "accent" },
-                  "header": {
-                    "content": { "mod": "minimal-pane" },
-                    "height": 18,
-                    "position": "top",
-                    "reveal": "always"
-                  }
+                  "focus": { "width": 1, "color": "accent" }
                 }
               }
             },

@@ -83,7 +83,7 @@ export default class MinimalBar extends View {
     const pane = leadPane(allPanes, tab.id);
     const label = tab.named
       ? tab.name
-      : pane?.program?.name ?? pane?.title ?? "Terminal";
+      : (pane?.program?.name ?? pane?.title ?? "Terminal");
     return h_flex()
       .id(`minimal-tab-${tab.id}`)
       .h(26)
