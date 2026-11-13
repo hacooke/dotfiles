@@ -12,7 +12,7 @@ comment_types = [
   { id = "issue", color = "red", definition = "must fix" },
   { id = "question", definition = "ask for clarification", color = "yellow" },
   { id = "suggestion", color = "blue", definition = "possible improvements" },
-  { id = "nitpick", definition = "small optional tweaks", color = "orange" },
+  { id = "nitpick", definition = "small optional tweaks", color = "#ffa000" },
   { id = "style", color = "magenta", definition = "style change" },
   { id = "praise", color="green", definition = "positive feedback" },
 ]
