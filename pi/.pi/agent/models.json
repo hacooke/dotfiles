@@ -16,6 +16,18 @@
         },
         "gpt-5.5": {
           "contextWindow": 272000
+        },
+        "gpt-6-astra": {
+          "contextWindow": 216384
+        },
+        "gpt-6-luna": {
+          "contextWindow": 216384
+        },
+        "gpt-6-sol": {
+          "contextWindow": 216384
+        },
+        "gpt-6.1-sol": {
+          "contextWindow": 216384
         }
       }
     }

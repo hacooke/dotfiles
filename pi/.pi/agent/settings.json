@@ -4,7 +4,7 @@
   "defaultProvider": "github-copilot",
   "defaultModel": "grok-4.5",
   "defaultThinkingLevel": "medium",
-  "hideThinkingBlock": true,
+  "hideThinkingBlock": false,
   "packages": [
     "npm:pi-tool-display",
     "npm:pi-footer-manager",

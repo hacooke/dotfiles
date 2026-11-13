@@ -7,6 +7,8 @@
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
+const HERDR_PERMISSION_PROMPT_EVENT = "herdr:permission-prompt";
+
 export default function (pi: ExtensionAPI) {
 	// const dangerousPatterns = [/\brm\s+(-rf?|--recursive)/i, /\bsudo\b/i, /\b(chmod|chown)\b.*777/i, /\bgit\b/i];
 	const dangerousPatterns = [/\brm\s+(-rf?|--recursive)/i, /\bsudo\b/i, /\b(chmod|chown)\b.*777/i];
@@ -22,17 +24,32 @@ export default function (pi: ExtensionAPI) {
 				return { block: true, reason: "The user has blocked use of this command" };
 			}
 
-			const choice = await ctx.ui.select(`⚠️ Dangerous command:\n\n  ${command}\n\nAllow?`, ["Yes", "No"]);
+			const message = `⚠️ Dangerous command: ${command}`;
+			const reportsHerdrStatus = ctx.mode === "tui" && Boolean(process.env.HC_TERMINAL_ID);
+			if (reportsHerdrStatus) {
+				pi.events.emit(HERDR_PERMISSION_PROMPT_EVENT, { action: "start", message });
+			}
 
-			if (choice !== "Yes") {
-				const note = await ctx.ui.input(
-					"Block reason",
-					"Why block this? Tell model what to change next.",
-				);
-				return {
-					block: true,
-					reason: note?.trim() ? note.trim() : "The user has blocked use of this command",
-				};
+			try {
+				const choice = await ctx.ui.select(`${message}\n\nAllow?`, ["Yes", "No"]);
+
+				if (choice !== "Yes") {
+					const note = await ctx.ui.input(
+						"Block reason",
+						"Why block this? Tell model what to change next.",
+					);
+					return {
+						block: true,
+						reason: note?.trim() ? note.trim() : "The user has blocked use of this command",
+					};
+				}
+			} finally {
+				if (reportsHerdrStatus) {
+					pi.events.emit(HERDR_PERMISSION_PROMPT_EVENT, {
+						action: "end",
+						state: ctx.isIdle() ? "idle" : "working",
+					});
+				}
 			}
 		}
 
