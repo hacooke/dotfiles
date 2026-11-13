@@ -111,10 +111,7 @@ declare -A existing_local_folders=() discovered_folders=()
 
 while IFS=$'\t' read -r space_id space_name space_folder machine_name; do
     [[ -n "$space_id" ]] || continue
-    display_folder=${space_folder:-unknown folder}
-    [[ -n "$machine_name" ]] && display_folder="$machine_name:$display_folder"
-    short_id=${space_id:0:8}
-    choices+=("[space] ${space_name:-unnamed} — $display_folder ($short_id)")
+    choices+=("[herdr] ${space_name:-unnamed}")
     choice_types+=(space)
     choice_values+=("$space_id")
 
@@ -145,7 +142,7 @@ for entry in "${HS_SEARCH_PATHS[@]}" "${HS_EXTRA_SEARCH_PATHS[@]}"; do
         [[ -z "${existing_local_folders[$canonical_folder]+x}" ]] || continue
         [[ -z "${discovered_folders[$canonical_folder]+x}" ]] || continue
         discovered_folders["$canonical_folder"]=1
-        choices+=("[new] $canonical_folder")
+        choices+=("$canonical_folder")
         choice_types+=(new)
         choice_values+=("$canonical_folder")
     done < <(find "$search_path" -mindepth 1 -maxdepth "$max_depth" \
@@ -158,28 +155,30 @@ if ((${#choices[@]} == 0)); then
 fi
 
 if [[ "$use_rofi" == true ]]; then
-    if ! selected=$(printf '%s\n' "${choices[@]}" | rofi -dmenu -p "$rofi_prompt"); then
+    if ! selected_index=$(printf '%s\n' "${choices[@]}" | rofi -dmenu -format i -p "$rofi_prompt"); then
         exit 0
     fi
 else
-    if ! selected=$(printf '%s\n' "${choices[@]}" | fzf --prompt "$rofi_prompt"); then
+    indexed_choices=()
+    for index in "${!choices[@]}"; do
+        indexed_choices+=("$index"$'\t'"${choices[$index]}")
+    done
+    if ! selected_index=$(printf '%s\n' "${indexed_choices[@]}" | fzf --with-nth=2.. --accept-nth=1 --prompt "$rofi_prompt"); then
         exit 0
     fi
 fi
-[[ -n "$selected" ]] || exit 0
+[[ "$selected_index" =~ ^[0-9]+$ ]] || exit 0
 ensure_herdr_app || exit 1
 
-for index in "${!choices[@]}"; do
-    [[ "${choices[$index]}" == "$selected" ]] || continue
-    case "${choice_types[$index]}" in
-        space)
-            exec herdr-app do space.select --id "${choice_values[$index]}"
-            ;;
-        new)
-            exec herdr-app do space.new --folder "${choice_values[$index]}"
-            ;;
-    esac
-done
+case "${choice_types[$selected_index]:-}" in
+    space)
+        exec herdr-app do space.select --id "${choice_values[$selected_index]}"
+        ;;
+    new)
+        new_space_name=${choice_values[$selected_index]##*/}
+        exec herdr-app do space.new --name "$new_space_name" --folder "${choice_values[$selected_index]}"
+        ;;
+esac
 
 echo "herdr-sessionizer: selected item did not match a choice" >&2
 exit 1
