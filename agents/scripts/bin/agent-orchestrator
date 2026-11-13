@@ -1,0 +1,175 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+    cat <<'USAGE'
+Usage: agent-orchestrator [--repo ALIAS] [--base BRANCH] [--help] [REQUEST...]
+
+Start the persistent Pi multi-build orchestrator in a Herdr-managed terminal.
+Repository names must match a configured canonical alias or synonym in the
+repository map selected by XDG_CONFIG_HOME (default: ~/.config).
+
+Options:
+  --repo ALIAS    Resolve and select one configured repository
+  --base BRANCH   Request a base branch (requires --repo)
+  --help          Show this help
+
+Without --repo, pass a request as the initial message. The orchestrator must
+resolve its repository from the configured map before creating any worktree.
+USAGE
+}
+
+fail() {
+    printf 'agent-orchestrator: %s\n' "$*" >&2
+    exit 1
+}
+
+repo_request=''
+base_branch=''
+request_parts=()
+while (($#)); do
+    case $1 in
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        --repo|--base)
+            option=$1
+            (($# >= 2)) || fail "$option requires a value"
+            [[ -n $2 ]] || fail "$option requires a non-empty value"
+            if [[ $option == --repo ]]; then
+                [[ -z $repo_request ]] || fail '--repo may be specified once'
+                repo_request=$2
+            else
+                [[ -z $base_branch ]] || fail '--base may be specified once'
+                base_branch=$2
+            fi
+            shift 2
+            ;;
+        --)
+            shift
+            request_parts+=("$@")
+            break
+            ;;
+        -* )
+            fail "unknown option: $1 (use --help)"
+            ;;
+        *)
+            request_parts+=("$1")
+            shift
+            ;;
+    esac
+done
+[[ -z $base_branch || -n $repo_request ]] || fail '--base requires --repo'
+
+for required_command in hc herdr-app jq git realpath pi; do
+    command -v "$required_command" >/dev/null 2>&1 || fail "required command '$required_command' not found"
+done
+
+script_path=$(realpath -e -- "${BASH_SOURCE[0]}") || fail 'cannot resolve launcher path'
+script_dir=$(cd -- "$(dirname -- "$script_path")" && pwd -P)
+repo_root=$(cd -- "$script_dir/../.." && pwd -P)
+skill_file="$repo_root/.agents/skills/orchestrator/SKILL.md"
+example_file="$repo_root/.agents/orchestrator/repos.example.json"
+[[ -f $skill_file ]] || fail "orchestrator skill missing: $skill_file"
+[[ -f $example_file ]] || fail "repository-map example missing: $example_file"
+
+terminal_id=${HC_TERMINAL_ID:-}
+[[ -n $terminal_id ]] || fail 'run from a Herdr-managed terminal (HC_TERMINAL_ID is unset)'
+herdr_listing=$(herdr-app ls) || fail 'cannot inspect Herdr terminals; ensure Herdr app is running'
+if ! jq -e --arg terminal "$terminal_id" '
+    [.spaces[].tabs[].terminals[] | select(.terminal == $terminal)] | length == 1
+' <<<"$herdr_listing" >/dev/null; then
+    fail "terminal $terminal_id is not present in Herdr"
+fi
+
+config_root=${XDG_CONFIG_HOME:-$HOME/.config}
+config_dir="$config_root/agent-orchestrator"
+repo_map="$config_dir/repos.json"
+if [[ ! -e $repo_map ]]; then
+    mkdir -p -- "$config_dir" || fail "cannot create config directory: $config_dir"
+    temporary_map=$(mktemp "$config_dir/.repos.XXXXXX") || fail "cannot create config in $config_dir"
+    cleanup_temporary_map() { rm -f -- "$temporary_map"; }
+    trap cleanup_temporary_map EXIT
+    install -m 600 -- "$example_file" "$temporary_map" || fail 'cannot prepare repository-map example'
+    if ln -- "$temporary_map" "$repo_map" 2>/dev/null; then
+        rm -f -- "$temporary_map"
+        trap - EXIT
+        printf 'Created editable repository map: %s\n' "$repo_map" >&2
+        printf 'Add entries with canonical alias, optional synonyms, and Git root path; see %s.\n' "$example_file" >&2
+        printf 'Then rerun agent-orchestrator. No worktree was created.\n' >&2
+        exit 0
+    fi
+    rm -f -- "$temporary_map"
+    trap - EXIT
+    [[ -f $repo_map ]] || fail "cannot create repository map: $repo_map"
+fi
+[[ -f $repo_map ]] || fail "repository map is not a regular file: $repo_map"
+
+if ! jq -e '
+    def nonempty_string: type == "string" and (length > 0) and (test("^\\s*$") | not);
+    def normalize: ascii_downcase | gsub("^\\s+|\\s+$"; "");
+    if type != "object" or (.repositories | type) != "array" then false
+    else
+        all(.repositories[];
+            if type != "object" then false
+            elif (.alias | type) != "string" or (.alias | test("^[a-z0-9][a-z0-9._-]*$") | not) then false
+            elif (.path | nonempty_string | not) or (.path | startswith("/") | not) then false
+            elif has("synonyms") and ((.synonyms | type) != "array" or (any(.synonyms[]; nonempty_string | not))) then false
+            else true end
+        ) and
+        ([.repositories[] | ([.alias] + (.synonyms // []))[] | normalize] | length == (unique | length))
+    end
+' "$repo_map" >/dev/null 2>&1; then
+    fail "malformed repository map or duplicate aliases: $repo_map (see $example_file)"
+fi
+
+selected_alias=''
+selected_root=''
+if [[ -n $repo_request ]]; then
+    needle=$(jq -nr --arg value "$repo_request" '$value | ascii_downcase | gsub("^\\s+|\\s+$"; "")')
+    matches=$(jq -c --arg needle "$needle" '
+        def normalize: ascii_downcase | gsub("^\\s+|\\s+$"; "");
+        [.repositories[] | select(any(([.alias] + (.synonyms // []))[]; normalize == $needle))]
+    ' "$repo_map") || fail "cannot read repository map: $repo_map"
+    match_count=$(jq 'length' <<<"$matches")
+    case $match_count in
+        0) fail "unknown repository '$repo_request'; add a matching alias or synonym to $repo_map" ;;
+        1) ;;
+        *) fail "ambiguous repository '$repo_request'; configure unique aliases and synonyms in $repo_map" ;;
+    esac
+    selected_alias=$(jq -r '.[0].alias' <<<"$matches")
+    configured_path=$(jq -r '.[0].path' <<<"$matches")
+    [[ -d $configured_path ]] || fail "configured path for '$selected_alias' does not exist or is not a directory: $configured_path"
+    configured_path=$(realpath -e -- "$configured_path") || fail "cannot resolve configured path for '$selected_alias'"
+    selected_root=$(git -C "$configured_path" rev-parse --show-toplevel 2>/dev/null) ||
+        fail "configured path for '$selected_alias' is not inside a Git worktree: $configured_path"
+    selected_root=$(realpath -e -- "$selected_root") || fail "cannot resolve Git root for '$selected_alias'"
+fi
+
+if [[ -z $repo_request && $(jq '.repositories | length' "$repo_map") == 0 ]]; then
+    printf 'No repositories configured in %s.\n' "$repo_map" >&2
+    printf 'Add at least one entry using the schema in %s, then rerun.\n' "$example_file" >&2
+    exit 1
+fi
+
+initial_prompt='Start the multi-build orchestrator. Follow the loaded orchestrator skill. Resolve every requested repository only through the configured repository map. Do not create a worktree until the repository, base branch, and task request are confirmed.'
+if [[ -n $selected_alias ]]; then
+    initial_prompt+=$'\n\nSelected repository: canonical alias '
+    initial_prompt+="$selected_alias"
+    initial_prompt+=$'; Git root '
+    initial_prompt+="$selected_root"
+    if [[ -n $base_branch ]]; then
+        initial_prompt+=$'; requested base branch '
+        initial_prompt+="$base_branch"
+    fi
+fi
+if ((${#request_parts[@]})); then
+    request_text=$(printf '%s ' "${request_parts[@]}")
+    request_text=${request_text% }
+    initial_prompt+=$'\n\nUser request: '
+    initial_prompt+="$request_text"
+fi
+
+cd -- "$HOME"
+exec pi --skill "$skill_file" --name 'Multi-Build Orchestrator' "$initial_prompt"

@@ -1,0 +1,9 @@
+{
+  "repositories": [
+    {
+      "alias": "example",
+      "synonyms": ["example project"],
+      "path": "/absolute/path/to/git/worktree"
+    }
+  ]
+}

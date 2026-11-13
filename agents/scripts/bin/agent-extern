@@ -1,0 +1,216 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage='Usage: agent-extern [--name PANE_NAME] [--status STATUS] [--kind KIND] -- command [arguments...]'
+pane_name="agent-extern-$$"
+status=blocked
+status_kind=question
+kind_set=false
+while (($#)); do
+    case $1 in
+        --name|--status|--kind)
+            option=$1
+            if (($# < 2)) || [[ -z $2 ]]; then
+                echo "$usage" >&2
+                exit 2
+            fi
+            case $option in
+                --name) pane_name=$2 ;;
+                --status) status=$2 ;;
+                --kind)
+                    status_kind=$2
+                    kind_set=true
+                    ;;
+            esac
+            shift 2
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            echo "$usage" >&2
+            exit 2
+            ;;
+    esac
+done
+if (($# == 0)); then
+    echo "$usage" >&2
+    exit 2
+fi
+if ((${#pane_name} > 32)) || [[ ! $pane_name =~ ^[a-z0-9][a-z0-9._-]*$ || $pane_name =~ ^t[0-9]+$ ]]; then
+    echo 'agent-extern: pane name must be 1-32 lowercase letters, digits, dots, underscores, or hyphens; it cannot look like a terminal ID' >&2
+    exit 2
+fi
+case $status in
+    working|blocked|idle|done) ;;
+    *)
+        echo 'agent-extern: status must be working, blocked, idle, or done' >&2
+        exit 2
+        ;;
+esac
+if [[ $kind_set == true ]]; then
+    case $status_kind in
+        question|permission|auth|none) ;;
+        *)
+            echo 'agent-extern: kind must be question, permission, auth, or none' >&2
+            exit 2
+            ;;
+    esac
+    if [[ $status != blocked ]]; then
+        echo 'agent-extern: --kind only applies with --status blocked' >&2
+        exit 2
+    fi
+fi
+if [[ $status != blocked || $status_kind == none ]]; then
+    status_kind=''
+fi
+
+for required_command in hc herdr-app jq base64; do
+    if ! command -v "$required_command" >/dev/null 2>&1; then
+        echo "agent-extern: required command '$required_command' not found" >&2
+        exit 1
+    fi
+done
+
+source_terminal=${HC_TERMINAL_ID:-}
+if [[ -z $source_terminal ]]; then
+    echo 'agent-extern: run from a Herdr-managed terminal' >&2
+    exit 1
+fi
+
+terminal_listing=$(herdr-app ls)
+source_location=$(jq -cer --arg terminal "$source_terminal" '
+    [.spaces[] as $space | $space.tabs[] as $tab |
+        $tab.terminals[] | select(.terminal == $terminal) |
+        {pane:.pane, space:$space.id, tab:$tab.id}]
+    | if length == 1 then .[0] else error("source terminal not shown in Herdr") end
+' <<<"$terminal_listing")
+source_space=$(jq -er '.space' <<<"$source_location")
+source_tab=$(jq -er '.tab' <<<"$source_location")
+
+completion_dir=$(mktemp -d "${TMPDIR:-/tmp}/agent-extern.XXXXXX")
+completion_fifo="$completion_dir/finished"
+mkfifo "$completion_fifo"
+exec {completion_fd}<> "$completion_fifo"
+
+child_terminal=""
+child_finished=false
+
+cleanup() {
+    local status=$?
+    trap - EXIT INT TERM
+
+    if [[ -n $child_terminal ]]; then
+        if [[ $child_finished != true ]]; then
+            hc kill "$child_terminal" >/dev/null 2>&1 || true
+            IFS= read -r -t 10 ignored_status <&"$completion_fd" || true
+            hc wait --timeout 10 "$child_terminal" >/dev/null 2>&1 || true
+        fi
+        hc rm "$child_terminal" >/dev/null 2>&1 || true
+    fi
+
+    exec {completion_fd}>&- || true
+    rm -rf -- "$completion_dir"
+    exit "$status"
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+child_script=$(cat <<'CHILD'
+set -euo pipefail
+status=$1
+status_kind=$2
+completion_fifo=$3
+pane_title=$4
+command_name=${5##*/}
+shift 4
+
+title_b64=$(printf '%s' "$pane_title" | base64 -w0)
+message_b64=$(printf 'Waiting for user input in %s' "$command_name" | base64 -w0)
+printf '\033]0;%s\007' "$pane_title"
+report_exit() {
+    local exit_status=$?
+    trap - EXIT
+    printf '\033]7501;state=clear\033\\'
+    printf '%s\n' "$exit_status" >"$completion_fifo" || true
+}
+trap report_exit EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+status_record="state=$status"
+if [[ -n $status_kind ]]; then
+    status_record+=":kind=$status_kind"
+fi
+printf '\033]7501;%s:app=agent-extern:title=%s:msg=%s\033\\' \
+    "$status_record" "$title_b64" "$message_b64"
+
+set +e
+"$@"
+command_status=$?
+exit "$command_status"
+CHILD
+)
+
+child_reply=$(hc run --bg --json --no-notify \
+    --no-parent \
+    --label "herdr.space=$source_space" \
+    --label "herdr.tab=$source_tab" \
+    --name "$pane_name" \
+    --cwd "$PWD" \
+    /bin/bash -c "$child_script" agent-extern-child \
+    "$status" "$status_kind" "$completion_fifo" "$pane_name" "$@")
+child_terminal=$(jq -er '.address' <<<"$child_reply")
+
+sleep 0.5
+child_pane=$(herdr-app ls | jq -r --arg terminal "$child_terminal" '
+    [.spaces[].tabs[].terminals[] | select(.terminal == $terminal) | .pane]
+    | if length == 1 then .[0] else empty end
+')
+if [[ -n $child_pane ]]; then
+    window_location=$(herdr-app status)
+    if jq -e --arg space "$source_space" --arg tab "$source_tab" \
+        '.space == $space and .tab == $tab' <<<"$window_location" >/dev/null; then
+        pane_payload=$(jq -cn --arg pane "$child_pane" '{pane:$pane}')
+        herdr-app do pane.zoom "$pane_payload" >/dev/null
+        herdr-app do pane.focus "$pane_payload" >/dev/null
+    fi
+elif [[ $(hc get "$child_terminal" | jq -r '.state') == live ]]; then
+    echo 'agent-extern: root agent pane not found in Herdr' >&2
+    exit 1
+fi
+
+if ! IFS= read -r command_status <&"$completion_fd"; then
+    echo 'agent-extern: command ended without exit status' >&2
+    exit 1
+fi
+if [[ ! $command_status =~ ^[0-9]+$ ]]; then
+    echo 'agent-extern: invalid command exit status' >&2
+    exit 1
+fi
+wait_status=$command_status
+exec {completion_fd}>&-
+
+while :; do
+    hc wait --timeout 600 "$child_terminal" >/dev/null 2>&1 || wait_status_from_hc=$?
+    if [[ ${wait_status_from_hc:-0} == 124 ]]; then
+        wait_status_from_hc=0
+        continue
+    fi
+    wait_status_from_hc=0
+
+    terminal_state=$(hc get "$child_terminal" | jq -r '.state')
+    if [[ $terminal_state == live ]]; then
+        continue
+    fi
+    break
+done
+child_finished=true
+hc read --lines 1000 "$child_terminal" |
+    awk '$0 == "[hc] incomplete: older output may be missing" {
+             print "agent-extern: " $0 > "/dev/stderr"
+             next
+         }
+         { print }'
+exit "$wait_status"
