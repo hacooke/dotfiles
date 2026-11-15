@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage='Usage: tuicr-agent REPO'
+if [[ ${1:-} == -h || ${1:-} == --help ]]; then
+    echo "$usage"
+    exit 0
+fi
+if (($# != 1)); then
+    echo "$usage" >&2
+    exit 2
+fi
+
+for required_command in agent-extern tuicr git; do
+    if ! command -v "$required_command" >/dev/null 2>&1; then
+        echo "tuicr-agent: required command '$required_command' not found" >&2
+        exit 1
+    fi
+done
+
+if ! repository=$(git -C "$1" rev-parse --show-toplevel 2>/dev/null); then
+    echo "tuicr-agent: not a Git repository: $1" >&2
+    exit 2
+fi
+cd -- "$repository"
+
+exec agent-extern \
+    --name "tuicr-review-$$" \
+    --status blocked \
+    --kind question \
+    -- /bin/bash -c '
+        set -u
+
+        if tuicr tui --working-tree --stdout --no-update-check; then
+            tuicr_status=0
+        else
+            tuicr_status=$?
+        fi
+        printf "\\nTUICR_EXIT=%s\\n" "$tuicr_status"
+        if ((tuicr_status != 0)); then
+            exit "$tuicr_status"
+        fi
+
+        while true; do
+            printf "\\nHuman decision [APPROVE / CHANGES_REQUESTED / NO_DECISION]: " >&2
+            if ! IFS= read -r decision; then
+                printf "\\nHUMAN_REVIEW_DECISION=NO_DECISION\\n"
+                exit 2
+            fi
+            case "$decision" in
+                APPROVE|CHANGES_REQUESTED|NO_DECISION)
+                    printf "HUMAN_REVIEW_DECISION=%s\\n" "$decision"
+                    exit 0
+                    ;;
+                *)
+                    printf "Choose APPROVE, CHANGES_REQUESTED, or NO_DECISION.\\n" >&2
+                    ;;
+            esac
+        done
+    '

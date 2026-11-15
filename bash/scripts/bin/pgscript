@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+SSH_HOST=$1
+SCRIPT=$2
+HOST=$(ssh-host-ip "${SSH_HOST}")
+
+psql "postgres://backend:backend@${HOST}:5432" \
+ --csv \
+ --set=ON_ERROR_STOP=1 \
+ --file "$SCRIPT" > "${SCRIPT%.*}.csv"

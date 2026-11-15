@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+SSH_HOST=$1
+HOST=$(ssh-host-ip "${SSH_HOST}")
+
+pgcli "postgres://backend:backend@${HOST}:5432"

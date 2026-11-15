@@ -1,8 +1,6 @@
 # dotinstall child script. Usage: dotinstall tuicr
-curl -fsSL tuicr.dev/install.sh | sh
+dotinstall stow jq || return 1
+curl -fsSL tuicr.dev/install.sh | sh || return 1
 
-# Install config from dotfiles
-# stow -d ~/dotfiles tuicr
-
-# Dependencies
-# dotinstall <otherpackage>
+# Install config and tuicr-agent wrapper from dotfiles
+stow -d ~/dotfiles tuicr || return 1

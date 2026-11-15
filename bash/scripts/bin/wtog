@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+rofi_mode=false
+rofi_prompt="wifi:"
+
+while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+    --rofi)
+        rofi_mode=true
+        ;;
+    --rofi-prompt)
+        rofi_prompt=$2
+        shift
+        ;;
+    *)
+        user_selected="$1"
+        ;;
+    esac
+    shift
+done
+
+# get_networks() {
+#     nmcli -t -f NAME,TYPE connection show |
+#     awk -F: '$2=="802-11-wireless"{print $1}' |
+#     while read -r conn; do
+#         ssid=$(nmcli -g 802-11-wireless.ssid connection show "$conn" 2>/dev/null)
+#         [ -n "$ssid" ] && printf '%s\t%s\n' "$conn" "$ssid"
+#     done |
+#     awk -F'\t' 'NR==FNR{seen[$0];next} $2 in seen{print $1}' \
+#         <(nmcli -t -f SSID dev wifi list | sort -u) -
+# }
+get_networks() {
+    active=$(nmcli -t -f NAME,TYPE connection show --active |
+        awk -F: '$2=="802-11-wireless"{print $1; exit}')
+
+    nmcli -t -f NAME,TYPE connection show |
+    awk -F: '$2=="802-11-wireless"{print $1}' |
+    while read -r conn; do
+        ssid=$(nmcli -g 802-11-wireless.ssid connection show "$conn" 2>/dev/null)
+        [ -n "$ssid" ] && printf '%s\t%s\n' "$conn" "$ssid"
+    done |
+    awk -F'\t' 'NR==FNR{seen[$0];next} $2 in seen{print $1}' \
+        <(nmcli -t -f SSID dev wifi list | sort -u) - |
+    while read -r conn; do
+        if [[ "$conn" == "$active" ]]; then
+            printf '%s [Connected]\n' "$conn"
+        else
+            printf '%s\n' "$conn"
+        fi
+    done
+}
+
+if [[ ! -z $user_selected ]]; then
+    selected="$user_selected"
+elif [[ "$rofi_mode" = true ]]; then
+    selected=$(get_networks | rofi -dmenu -match fzf -p "$rofi_prompt")
+else
+    selected=$(get_networks | fzf)
+fi
+
+if [[ -z $selected ]]; then
+    exit 0
+fi
+
+output=$(nmcli connection up "$selected" 2>&1)
+status=$?
+
+notify-send "$( [ $status -eq 0 ] && echo "WiFi Connected" || echo "WiFi Error" )" "$output"
