@@ -119,6 +119,7 @@ Repeat steps in dependency order, then add a final verification section if neede
 
 ## Critty Review Gate
 
+- Critty review is user review; its verdict is the user's decision. `approve` means the user approved the reviewed artifact. Do not request separate user approval after Critty approves.
 - After creating or materially updating either plan file, run `critty review <file>` using its repository-relative path. Do not set a timeout, or use a very long timeout, so review does not expire while awaiting feedback.
 - Wait for the decision returned in command output before continuing. Do not infer approval from silence or other feedback.
 - On `approve`, continue to the next authorized phase or finish.

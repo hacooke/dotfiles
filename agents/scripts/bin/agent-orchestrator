@@ -6,8 +6,8 @@ usage() {
 Usage: agent-orchestrator [--repo ALIAS|PATH] [--base BRANCH] [--help] [REQUEST...]
 
 Start the persistent Pi multi-build orchestrator (Oscar) in a Herdr-managed terminal.
-The repository map (XDG_CONFIG_HOME or ~/.config) is a convenience catalog,
-not an allowlist. Explicit paths and new repositories are also supported.
+The known-repos skill provides a shared convenience catalog, not an allowlist.
+Explicit paths and new repositories are also supported.
 
 Options:
   --repo ALIAS|PATH  Suggest a repository alias or exact workspace path
@@ -68,9 +68,12 @@ script_path=$(realpath -e -- "${BASH_SOURCE[0]}") || fail 'cannot resolve launch
 script_dir=$(cd -- "$(dirname -- "$script_path")" && pwd -P)
 repo_root=$(cd -- "$script_dir/../.." && pwd -P)
 skill_file="$repo_root/.agents/skills/orchestrator/SKILL.md"
-example_file="$repo_root/.agents/orchestrator/repos.example.json"
+agent_reporting_skill="$repo_root/.agents/skills/agent-reporting/SKILL.md"
+known_repos_skill="$repo_root/.agents/skills/known-repos/SKILL.md"
+repo_map="$repo_root/.agents/skills/known-repos/repos.json"
 [[ -f $skill_file ]] || fail "orchestrator skill missing: $skill_file"
-[[ -f $example_file ]] || fail "repository-map example missing: $example_file"
+[[ -f $agent_reporting_skill ]] || fail "agent-reporting skill missing: $agent_reporting_skill"
+[[ -f $known_repos_skill ]] || fail "known-repos skill missing: $known_repos_skill"
 
 terminal_id=${HC_TERMINAL_ID:-}
 [[ -n $terminal_id ]] || fail 'run from a Herdr-managed terminal (HC_TERMINAL_ID is unset)'
@@ -81,21 +84,7 @@ if ! jq -e --arg terminal "$terminal_id" '
     fail "terminal $terminal_id is not present in Herdr"
 fi
 
-config_root=${XDG_CONFIG_HOME:-$HOME/.config}
-config_dir="$config_root/agent-orchestrator"
-repo_map="$config_dir/repos.json"
 map_note=''
-if [[ ! -e $repo_map ]]; then
-    if mkdir -p -- "$config_dir"; then
-        if temporary_map=$(mktemp "$config_dir/.repos.XXXXXX" 2>/dev/null); then
-            if install -m 600 -- "$example_file" "$temporary_map" && ln -- "$temporary_map" "$repo_map" 2>/dev/null; then
-                printf 'Created editable repository catalog: %s\n' "$repo_map" >&2
-            fi
-            rm -f -- "$temporary_map"
-        fi
-    fi
-fi
-
 map_usable=false
 if [[ -f $repo_map ]] && jq -e '
     def nonempty_string: type == "string" and (length > 0) and (test("^\\s*$") | not);
@@ -106,6 +95,7 @@ if [[ -f $repo_map ]] && jq -e '
             if type != "object" then false
             elif (.alias | type) != "string" or (.alias | test("^[a-z0-9][a-z0-9._-]*$") | not) then false
             elif (.path | nonempty_string | not) or (.path | startswith("/") | not) then false
+            elif (.github_repo | type) != "string" or (.github_repo | test("^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$") | not) then false
             elif has("synonyms") and ((.synonyms | type) != "array" or (any(.synonyms[]; nonempty_string | not))) then false
             else true end
         ) and
@@ -207,4 +197,4 @@ if ((${#request_parts[@]})); then
 fi
 
 cd -- "$HOME"
-exec pi --skill "$skill_file" --name 'Multi-Build Orchestrator' "$initial_prompt"
+exec pi --skill "$skill_file" --skill "$agent_reporting_skill" --name 'Multi-Build Orchestrator' "$initial_prompt"
