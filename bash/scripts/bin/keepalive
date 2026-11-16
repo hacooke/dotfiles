@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+mapfile -t hypridle_pids < <(pgrep -x hypridle || true)
+if ((${#hypridle_pids[@]} == 0)); then
+    echo "No running hypridle process found" >&2
+    exit 1
+fi
+
+sleep_pid=
+cleanup() {
+    if [[ -n $sleep_pid ]]; then
+        kill "$sleep_pid" 2>/dev/null || true
+    fi
+    kill -CONT "${hypridle_pids[@]}" 2>/dev/null || true
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+kill -STOP "${hypridle_pids[@]}"
+echo "hypridle paused; press Ctrl-C to resume"
+
+while :; do
+    sleep 3600 &
+    sleep_pid=$!
+    wait "$sleep_pid" || true
+    sleep_pid=
+done
