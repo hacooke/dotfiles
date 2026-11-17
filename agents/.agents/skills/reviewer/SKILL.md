@@ -56,7 +56,7 @@ Set implementation status to `REQUIRES_CHANGES` when any finding remains, includ
 ## Human Review Handoff
 
 - Run human review only after agent review is complete, implementation status is `PASSED`, and `.agents/REVIEW.md` has no findings. Any remaining finding, including MINOR, means `REQUIRES_CHANGES`; stop before Tuicr.
-- From a Herdr-managed terminal, run `tuicr-agent <repo>`. This wrapper opens Tuicr, captures exported comments, then asks for an explicit `APPROVE`, `CHANGES_REQUESTED`, or `NO_DECISION` response. Do not launch Tuicr directly.
+- From a Herdr-managed terminal, run `tuicr-agent <repo>`. This wrapper opens Tuicr, captures exported comments, then asks for an explicit `APPROVE`, `CHANGES_REQUESTED`, or `NO_DECISION` response. Do not launch Tuicr directly. Use 600,000s timeout; this will wait for human availability.
 - Keep review focused on this implementation; ignore unrelated working-tree changes. Use wrapper output as source for comments and read explicit result from `HUMAN_REVIEW_DECISION=...`.
 - Record the decision and human comments with file/line context in `.agents/REVIEW.md` under `## Human Review`. Preserve actionable feedback; do not replace or discard implementation findings.
 - After each human review, record its decision and comments, then commit current task changes on the branch. Include task implementation and agent artifacts such as plans and `.agents/REVIEW.md`; stage only task-scoped paths and exclude unrelated user changes. This is the only agent commit; do not commit before human review or push.
