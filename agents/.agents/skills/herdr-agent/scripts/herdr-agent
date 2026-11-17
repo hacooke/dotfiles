@@ -1,0 +1,199 @@
+#!/usr/bin/env python3
+"""Launch Pi through hc, then rename its visible Herdr tab by explicit ID."""
+
+import argparse
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import time
+from typing import Any
+
+
+def parse_args() -> tuple[argparse.Namespace, list[str]]:
+    argv = sys.argv[1:]
+    value_options = {"--name", "--cwd", "--task", "--space", "--tab-name"}
+    wrapper_args: list[str] = []
+    index = 0
+    while index < len(argv) and argv[index] != "--":
+        token = argv[index]
+        if token in value_options and index + 1 < len(argv):
+            wrapper_args.append(f"{token}={argv[index + 1]}")
+            index += 2
+        else:
+            wrapper_args.append(token)
+            index += 1
+    pi_options = argv[index + 1 :] if index < len(argv) else []
+
+    parser = argparse.ArgumentParser(
+        description="Launch interactive Pi agent in background via hc and rename its Herdr tab.",
+        allow_abbrev=False,
+    )
+    parser.add_argument("--name", required=True, help="hc terminal name (1-32 lowercase letters, digits, - or _)")
+    parser.add_argument("--cwd", required=True, help="existing agent working directory")
+    parser.add_argument("--task", required=True, help="exact initial Pi prompt")
+    parser.add_argument("--space", help="Herdr space ID: sp followed by 32 lowercase hex digits")
+    parser.add_argument("--tab-name", help="visible tab name (defaults to --name)")
+    parser.add_argument("--keep", action="store_true", help="replace lost program with shell per hc --keep")
+    parser.add_argument("--dry-run", action="store_true", help="print JSON command details without launching")
+    args = parser.parse_args(wrapper_args)
+    return args, pi_options
+
+
+def terminal_address(value: Any) -> str | None:
+    if isinstance(value, dict):
+        for key in ("address", "terminal_id", "terminal"):
+            candidate = value.get(key)
+            if isinstance(candidate, str) and re.fullmatch(r"(?:[^/]+/)?t[a-z0-9]+", candidate):
+                return candidate
+        for candidate in value.values():
+            address = terminal_address(candidate)
+            if address:
+                return address
+    elif isinstance(value, list):
+        for candidate in value:
+            address = terminal_address(candidate)
+            if address:
+                return address
+    return None
+
+
+def matching_tab(data: Any, address: str) -> dict[str, Any] | None:
+    if not isinstance(data, dict):
+        return None
+    matches = [
+        tab
+        for space in data.get("spaces", [])
+        for tab in space.get("tabs", [])
+        if any(terminal.get("terminal") == address for terminal in tab.get("terminals", []))
+    ]
+    return matches[0] if len(matches) == 1 else None
+
+
+def run_command(command: list[str]) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(command, text=True, capture_output=True, check=False)
+
+
+def main() -> int:
+    args, pi_options = parse_args()
+    if not re.fullmatch(r"[a-z0-9_-]{1,32}", args.name):
+        print("herdr-agent: --name must match [a-z0-9_-]{1,32}", file=sys.stderr)
+        return 2
+    if not os.path.isdir(args.cwd):
+        print("herdr-agent: --cwd must name an existing directory", file=sys.stderr)
+        return 2
+    if not args.task:
+        print("herdr-agent: --task must be nonempty", file=sys.stderr)
+        return 2
+    if args.space and not re.fullmatch(r"sp[0-9a-f]{32}", args.space):
+        print("herdr-agent: --space must match sp followed by 32 lowercase hex digits", file=sys.stderr)
+        return 2
+
+    cwd = os.path.realpath(args.cwd)
+    tab_name = args.tab_name or args.name
+    hc_command = ["hc", "run", "--bg", "--json", "--no-notify", "--no-parent", "--cwd", cwd, "--name", args.name]
+    if args.space:
+        hc_command.extend(["--label", f"herdr.space={args.space}"])
+    if args.keep:
+        hc_command.append("--keep")
+    hc_command.extend(["--", "pi", *pi_options, "--", args.task])
+
+    if args.dry_run:
+        print(json.dumps({
+            "dry_run": True,
+            "name": args.name,
+            "cwd": cwd,
+            "space": args.space,
+            "tab_name": tab_name,
+            "keep": args.keep,
+            "initial_message": {"method": "pi-argv", "sent": False},
+            "argv": hc_command,
+            "tab_rename": {"command": ["herdr-app", "do", "tab.rename", "--id", "<tab-id>", "--name", tab_name]},
+        }, separators=(",", ":")))
+        return 0
+
+    if not shutil.which("hc"):
+        print("herdr-agent: hc not found in PATH", file=sys.stderr)
+        return 127
+    if not shutil.which("herdr-app"):
+        print("herdr-agent: herdr-app not found in PATH; refusing launch without tab rename support", file=sys.stderr)
+        return 127
+
+    launch = run_command(hc_command)
+    if launch.returncode != 0:
+        if launch.stderr:
+            print(launch.stderr, file=sys.stderr, end="")
+        return launch.returncode
+    try:
+        hc_result = json.loads(launch.stdout)
+    except json.JSONDecodeError as error:
+        print(f"herdr-agent: hc returned invalid JSON: {error}", file=sys.stderr)
+        return 1
+
+    address = terminal_address(hc_result)
+    tab_id = None
+    tab_renamed = False
+    tab_error = None
+
+    if not address:
+        tab_error = "hc JSON did not include terminal address"
+    elif not args.space:
+        tab_error = "terminal has no Herdr space placement; no visible tab to rename"
+    else:
+        for _ in range(10):
+            listing = run_command(["herdr-app", "ls"])
+            if listing.returncode == 0:
+                try:
+                    tab = matching_tab(json.loads(listing.stdout), address)
+                except json.JSONDecodeError:
+                    tab = None
+                if tab and isinstance(tab.get("id"), str) and tab["id"]:
+                    tab_id = tab["id"]
+                    break
+            time.sleep(0.2)
+
+        if not tab_id:
+            tab_error = "launched terminal tab not found in herdr-app ls"
+        else:
+            rename = run_command([
+                "herdr-app", "do", "tab.rename", "--id", tab_id, "--name", tab_name,
+            ])
+            if rename.returncode != 0:
+                if rename.stderr:
+                    print(rename.stderr, file=sys.stderr, end="")
+                tab_error = "herdr-app tab.rename failed"
+            else:
+                for _ in range(10):
+                    listing = run_command(["herdr-app", "ls"])
+                    if listing.returncode == 0:
+                        try:
+                            tab = matching_tab(json.loads(listing.stdout), address)
+                        except json.JSONDecodeError:
+                            tab = None
+                        if tab and tab.get("id") == tab_id and tab.get("name") == tab_name:
+                            tab_renamed = True
+                            break
+                    time.sleep(0.2)
+                if not tab_renamed:
+                    tab_error = "tab.rename succeeded but renamed tab was not verified"
+
+    print(json.dumps({
+        "terminal": address,
+        "name": args.name,
+        "cwd": cwd,
+        "space": args.space,
+        "tab": tab_id,
+        "tab_name": tab_name,
+        "tab_renamed": tab_renamed,
+        "tab_error": tab_error,
+        "keep": args.keep,
+        "initial_message": {"method": "pi-argv", "sent": True},
+        "hc": hc_result,
+    }, separators=(",", ":")))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
