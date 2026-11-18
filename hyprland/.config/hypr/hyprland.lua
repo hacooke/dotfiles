@@ -185,7 +185,7 @@ hl.bind("SUPER + SHIFT + TAB", function()
 end)
 hl.bind("SUPER + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind("SUPER + mouse:273", hl.dsp.window.resize(), { mouse = true })
-hl.bind("SUPER + CTRL + F", hl.dsp.window.fullscreen({ action = "set", mode = "maximized" }))
+hl.bind("SUPER + CTRL + F", hl.dsp.window.fullscreen({ action = "toggle", mode = "maximized" }))
 hl.bind("SUPER + F", hl.dsp.window.fullscreen({ action = "toggle", mode = "fullscreen" }))
 hl.bind("SUPER + O", hl.dsp.layout("togglesplit"))
 hl.bind("SUPER + SHIFT + N", function()
@@ -276,6 +276,9 @@ hl.bind("SUPER + bracketleft", hl.dsp.exec_cmd("$HOME/scripts/bin/tmux-sessioniz
 hl.bind("SUPER + P", hl.dsp.exec_cmd("$HOME/scripts/bin/herdr-sessionizer --rofi --rofi-prompt ' '"))
 hl.bind("SUPER + W", hl.dsp.exec_cmd("$HOME/scripts/bin/wtog --rofi --rofi-prompt '󰖩 '"))
 hl.bind("SUPER + A", hl.dsp.exec_cmd("$HOME/scripts/bin/pi-status --rofi"))
+
+-- Speech to text
+hl.bind("SUPER + V", hl.dsp.exec_cmd("/usr/lib/hyprwhspr/config/hyprland/hyprwhspr-tray.sh record"), { description = "Speech-to-text" })
 
 -- Screenshot and audio/brightness controls.
 hl.bind("Print", hl.dsp.exec_cmd("sshot_util"))

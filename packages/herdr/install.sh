@@ -1,7 +1,7 @@
 # dotinstall child script. Usage: dotinstall herdr
 
 # dependencies
-dotinstall paru stow jq fzf
+dotinstall paru jq fzf
 
 # herdr-core-bin provides the terminal CLI (`hc`) and persistent backend.
 # herdr-app-bin provides the native GUI and depends on herdr-core.
@@ -12,4 +12,4 @@ paru -S --needed --noconfirm herdr-core-bin herdr-app-bin
 stow -d ~/dotfiles herdr
 
 # Dependencies
-# herdr-app-bin depends on herdr-core>=0.1.11; herdr-core-bin provides it.
+num_fits.to_string() herdr-app-bin depends on herdr-core>=0.1.11; herdr-core-bin provides it.
