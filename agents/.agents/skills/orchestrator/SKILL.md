@@ -24,7 +24,16 @@ For an unlisted repo, use a path supplied by the user or search only the parent/
 - Continue an existing task only when the user explicitly identifies it or their message is unambiguously a response/update for that task. Do not treat a request as a continuation merely because a task is active, a role is waiting, or the request concerns the same repository. If task association is ambiguous, ask which task before forwarding the message or changing task state.
 - Keep tasks isolated. A new task must not inherit another task’s workspace, branch, worktree, Herdr space, agents, plan, brief, or pipeline. Never message or reuse a role from another task unless the user explicitly requests that reuse and it is safe for both tasks. Process reports and user updates against the matching task ID; activity in one task must not block or advance another.
 - Before setup or role launch for each new managed task, present the proposed workspace (mode and path; include base when applicable) and workflow (roles and order) to the user. If user already specified these, restate the choices and proceed without asking for redundant approval. If either is missing, propose a sensible default and ask the user to confirm or change it; do not create the workspace or launch roles until confirmed. For an existing Git repo, propose the default unique worktree. For software changes, propose the default Papa → Delta → Romeo pipeline unless the user requests another workflow. For investigation or other non-standard work, propose only task-relevant roles; a user-requested ad hoc role is scoped to that task and does not become a default role or pipeline.
-- Once choices are confirmed, create the task record and follow the existing setup and phase rules. Later user messages belong to that task only when they satisfy the continuation rule above; otherwise create or select a different task.
+- Narrow exception: for an explicit build/implementation request from a Jira ticket, create its task record and run Mike's ticket preflight before proposing workspace/workflow. Set workspace fields to `null` while unresolved. This preflight is not a default role or workflow step; do not create a workspace or launch Papa/Delta until the usual user confirmation is complete. For all other requests, use the normal sequence.
+- Once choices are confirmed, update the task record and follow the existing setup and phase rules. Later user messages belong to that task only when they satisfy the continuation rule above; otherwise create or select a different task.
+
+## Jira-ticket implementation preflight
+
+Use Mike only when the user explicitly asks to build/implement from a Jira ticket. Do not involve Mike for ordinary builds, repo questions, or incidental Jira mentions. If ticket key is missing, ask for it. This narrow preflight may happen before workspace selection because Mike's ticket details establish project/repo context.
+
+Capture the orchestrator terminal ID and create the task record before contacting Mike; generate the task ID and Herdr space ID as usual. Workspace fields stay `null` until selected. Find an existing Pi terminal in Herdr whose working directory is exactly `$HOME/code/project-manager-agent`; use it if present. Otherwise launch Mike there through `herdr-agent`, with the task space plus `project-manager-agent` and `agent-reporting` skills, and record its terminal ID. Give Mike the task ID, exact orchestrator terminal ID, and a `ticket_preflight` report contract: readiness, ticket requirements/acceptance criteria, repo/project route, dependencies, blockers, and ticket link. Scope every message/report to this task. Ask whether ticket is ready for implementation. This is a prompt-triggered Jira read only: do not ask Mike to edit/refine the ticket or perform other Jira/GitHub writes. Treat Mike as a shared preflight contact, not a build role; do not reuse other task roles or change user focus.
+
+If ticket is not ready or key details are unclear, record the result, mark the task `blocked`, and stop before workspace setup; do not start ticket refinement unless user asks. If ready, use Mike's details to propose workspace/workflow, then follow normal confirmation and setup rules. Oscar owns task routing: write Mike's returned context to `${state-dir}/<task-id>.ticket.md`, set `artifacts.ticket_brief` to its absolute path, and give Papa that path alongside the complete user brief. Mike reports to Oscar; Oscar hands off to Papa. Keep the ticket brief separate from the verbatim user request and outside the repo by default.
 
 ## Preserve the full user brief for Papa
 
@@ -59,14 +68,14 @@ Use a unique, filesystem-safe task ID (UTC timestamp plus random suffix) for man
   "base_branch": null,
   "branch": null,
   "worktree": null,
-  "terminals": { "planner": null, "coder": null, "reviewer": [] },
+  "terminals": { "project_manager": null, "planner": null, "coder": null, "reviewer": [] },
   "phase": "preparing",
   "last_event": null,
-  "artifacts": { "plan": null, "review": null }
+  "artifacts": { "plan": null, "review": null, "ticket_brief": null }
 }
 ```
 
-Set Git-specific fields when applicable; use `null` when no branch/worktree exists. Use an explicit user-provided workspace path as authorization to work there; ask only when target, scope, or risk is unclear.
+For Jira preflight, `workspace_mode` and `workspace_path` may be `null` while awaiting Mike's response and user confirmation; fill them before workspace setup. Set Git-specific fields when applicable; use `null` when no branch/worktree exists. Use an explicit user-provided workspace path as authorization to work there; ask only when target, scope, or risk is unclear.
 
 ### Workspace modes
 
@@ -81,7 +90,7 @@ Generate and persist one unique Herdr space ID per task (`sp` plus 32 lowercase 
 
 ### Role launches
 
-Start only roles needed for the workflow as separate, fresh Pi sessions in `workspace_path`. Use the `herdr-agent` skill wrapper for all launches; it handles launch mechanics, passes the supplied task, binds the requested space, renames the tab, and returns launch details. Oscar owns role selection, assigned skills, prompt content, task space, and tab names.
+Start task workflow roles as separate, fresh Pi sessions in `workspace_path`. Mike's Jira preflight is the exception: use/reuse the terminal in `$HOME/code/project-manager-agent` as defined above. Use the `herdr-agent` skill wrapper for all new launches; it handles launch mechanics, passes the supplied task, binds the requested space, renames the tab, and returns launch details. Oscar owns role selection, assigned skills, prompt content, task space, and tab names.
 
 - Give every role the `agent-reporting` skill. Also assign `planner` to Papa, `coder` to Delta, and `reviewer` to Romeo. Add other specialized skills only when relevant to the task. `herdr-agent` is Oscar's launch skill, not a default skill for child roles.
 - Every first prompt includes task ID, report destination, and concise role-specific handoff. Papa gets the complete brief verbatim. Delta gets the approved plan and relevant clarifications, or the complete brief if planning is skipped. Romeo gets the approved plan when present, otherwise the brief, plus relevant change context and review scope/constraints. Follow the role-specific reporting requirements in this skill's planning, implementation, and review sections.

@@ -13,7 +13,7 @@ Use this skill for GitHub PR reads and interpretation. Mike owns prioritization 
 - Read CWD-local `.agents/knowledge.json` for Mike-specific excluded repositories. If absent, use every catalog repository. Exclusions apply only to Mike's attention checks, not as a global allowlist.
 - At each requested GitHub check, run `gh auth status` and get current user with `gh api user --jq '{login: .login, id: .id}'`. Do not expose auth status details or token values in user-facing output.
 - Confirm repository access with read-only `gh repo view <owner/repo>`. An inaccessible repository is uncertain/incomplete, never a clear result.
-- All reads happen on prompt. No polling, scheduler, unattended loop, repository writes, or Slack send.
+- Reads happen on prompt by default. Polling/scheduled background reads are allowed only on explicit user request, scoped to named items with interval and stop condition/time limit; no unattended polling outside that request. This skill remains read-only for repository writes and Slack.
 
 ## Read-only queries
 
