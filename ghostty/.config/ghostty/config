@@ -56,3 +56,6 @@ scrollback-limit = 2048
 # Ghostty supports enhanced keyboard protocols automatically
 
 gtk-single-instance = false
+
+# Machine-specific settings; loaded after shared defaults.
+config-file = ?config.local

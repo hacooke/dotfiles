@@ -1,4 +1,5 @@
 @import "colours.css";
+@import "colours.local.css";
 
 @define-color cc-bg @bg-main;
 @define-color noti-border-color @bg-main;

@@ -14,22 +14,51 @@ local terminal = "ghostty"
 local fileManager = "nautilus"
 local browser = "firefox"
 
-local colorFile = assert(io.open(os.getenv("HOME") .. "/.config/hypr/colours.conf", "r"))
+local home = os.getenv("HOME")
 local colors = {}
-for line in colorFile:lines() do
-    local name, value = line:match("^%$([%w_]+)%s*=%s*rgb%(([%x]+)%)")
-    if name then
-        colors[name] = tonumber("0xff" .. value)
+
+local function readColors(path)
+    local colorFile = io.open(path, "r")
+    if not colorFile then
+        return
     end
+
+    for line in colorFile:lines() do
+        local name, value = line:match("^%$([%w_]+)%s*=%s*rgb%(([%x]+)%)")
+        if name then
+            colors[name] = tonumber("0xff" .. value)
+        end
+    end
+    colorFile:close()
 end
-colorFile:close()
-assert(colors.hl_main and colors.bg_main, "colours.conf must define hl_main and bg_main")
+
+local function fileExists(path)
+    local file = io.open(path, "r")
+    if not file then
+        return false
+    end
+    file:close()
+    return true
+end
+
+readColors(home .. "/.config/hypr/colours.conf")
+readColors(home .. "/.config/hypr/colours.local.conf")
+assert(colors.hl_main and colors.bg_main, "colour files must define hl_main and bg_main")
 
 hl.on("hyprland.start", function()
     hl.exec_cmd("swww-daemon")
     hl.exec_cmd("swww img -t none ~/documents/photos/wallpapers/current.png")
-    hl.exec_cmd("kanshi > ~/.cache/kanshi.log")
-    hl.exec_cmd("hypridle")
+    if fileExists(home .. "/.config/kanshi/config.local") then
+        hl.exec_cmd("kanshi -c ~/.config/kanshi/config.local > ~/.cache/kanshi.log")
+    else
+        hl.exec_cmd("kanshi > ~/.cache/kanshi.log")
+    end
+
+    if fileExists(home .. "/.config/hypr/hypridle.local.conf") then
+        hl.exec_cmd("hypridle -c ~/.config/hypr/hypridle.local.conf")
+    else
+        hl.exec_cmd("hypridle")
+    end
     hl.exec_cmd("swaync")
     hl.exec_cmd("swayosd-server")
     hl.exec_cmd("rclone mount gdrive: /mnt/gdrive")

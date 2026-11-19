@@ -4,6 +4,7 @@
  */
 
 @import "colours.rasi"
+@import "colours.local.rasi"
 
 * {
     background-color: transparent;

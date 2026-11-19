@@ -1,4 +1,5 @@
 @import "colours.css";
+@import "colours.local.css";
 
 * {
     font-family: "IosevkaTerm Nerd Font Propo";
