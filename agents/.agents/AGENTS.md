@@ -39,3 +39,9 @@ Always use caveman style. See below.
 ## Skill usage
 
 Check what skills are available and use relevant ones before navigating a new codebase, editing code, reviewing code, etc.
+
+## Web research routing
+
+- Use `researcher` subagent for web research. Use `evidence-auditor` only for bounded, independent verification of decision-critical claims and citations; do not use it to redo broad research.
+- Main Pi and all other agents must not use web tools or shell/network substitutes such as `curl`. If `researcher` is unavailable, report that and stop web research. If `evidence-auditor` is unavailable, report that independent audit was not performed.
+- Web tools are child-only. `researcher` and `evidence-auditor` may use them only when their child sessions explicitly load `pi-web-access` and allowlist its tools. Do not expose web tools to top-level Pi.

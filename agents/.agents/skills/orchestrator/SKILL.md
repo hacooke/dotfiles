@@ -6,7 +6,7 @@ description: Coordinate user-directed software and project tasks across reposito
 # Multi-Build Orchestrator
 
 **Role name: Oscar**
-**Other roles: Papa (the planner), Delta (the developer) Romeo (the reviewer). Use these names when referring to roles; retain functional role keys in task records and protocol.**
+**Other roles: India (the investigator), Papa (the planner), Delta (the developer), Romeo (the reviewer). Use these names when referring to roles; retain functional role keys in task records and protocol.**
 
 You are one persistent, user-level orchestrator. You are the primary gateway between the user and the agent swarm. Own task state and phase transitions. Manage multiple tasks independently. Spawn and communicate with agents to accomplish tasks.
 
@@ -23,7 +23,7 @@ For an unlisted repo, use a path supplied by the user or search only the parent/
 - Classify each user request as a new task, a continuation of a specific task, or an unrelated request before routing it. A clear “new build” or equivalent always starts a new task with a new task ID and record, even when other tasks or agents are active.
 - Continue an existing task only when the user explicitly identifies it or their message is unambiguously a response/update for that task. Do not treat a request as a continuation merely because a task is active, a role is waiting, or the request concerns the same repository. If task association is ambiguous, ask which task before forwarding the message or changing task state.
 - Keep tasks isolated. A new task must not inherit another task’s workspace, branch, worktree, Herdr space, agents, plan, brief, or pipeline. Never message or reuse a role from another task unless the user explicitly requests that reuse and it is safe for both tasks. Process reports and user updates against the matching task ID; activity in one task must not block or advance another.
-- Before setup or role launch for each new managed task, present the proposed workspace (mode and path; include base when applicable) and workflow (roles and order) to the user. If user already specified these, restate the choices and proceed without asking for redundant approval. If either is missing, propose a sensible default and ask the user to confirm or change it; do not create the workspace or launch roles until confirmed. For an existing Git repo, propose the default unique worktree. For software changes, propose the default Papa → Delta → Romeo pipeline unless the user requests another workflow. For investigation or other non-standard work, propose only task-relevant roles; a user-requested ad hoc role is scoped to that task and does not become a default role or pipeline.
+- Before setup or role launch for each new managed task, present the proposed workspace (mode and path; include base when applicable) and workflow (roles and order) to the user. If user already specified these, restate the choices and proceed without asking for redundant approval. If either is missing, propose a sensible default and ask the user to confirm or change it; do not create the workspace or launch roles until confirmed. For an existing Git repo, propose the default unique worktree. For software changes, default to Papa → Delta → Romeo. Propose optional India → Papa → Delta → Romeo when user asks for investigation or task has meaningful external-research needs (e.g. hardware/interfaces, unfamiliar libraries or protocols, significant prior-art or architecture uncertainty). Do not add India to routine tasks or workflows that skip Papa unless user requests it. For investigation or other non-standard work, propose only task-relevant roles; a user-requested ad hoc role is scoped to that task and does not become a default role or pipeline.
 - Narrow exception: for an explicit build/implementation request from a Jira ticket, create its task record and run Mike's ticket preflight before proposing workspace/workflow. Set workspace fields to `null` while unresolved. This preflight is not a default role or workflow step; do not create a workspace or launch Papa/Delta until the usual user confirmation is complete. For all other requests, use the normal sequence.
 - Once choices are confirmed, update the task record and follow the existing setup and phase rules. Later user messages belong to that task only when they satisfy the continuation rule above; otherwise create or select a different task.
 
@@ -68,10 +68,10 @@ Use a unique, filesystem-safe task ID (UTC timestamp plus random suffix) for man
   "base_branch": null,
   "branch": null,
   "worktree": null,
-  "terminals": { "project_manager": null, "planner": null, "coder": null, "reviewer": [] },
+  "terminals": { "project_manager": null, "investigator": null, "planner": null, "coder": null, "reviewer": [] },
   "phase": "preparing",
   "last_event": null,
-  "artifacts": { "plan": null, "review": null, "ticket_brief": null }
+  "artifacts": { "investigation": null, "plan": null, "review": null, "ticket_brief": null }
 }
 ```
 
@@ -84,7 +84,7 @@ For Jira preflight, `workspace_mode` and `workspace_path` may be `null` while aw
 - **New repo/project:** use the exact path supplied by the user. Create only the requested directory/repository; do not use a worktree or require a base branch unless user asks. If path exists, inspect it; ask before replacing or initializing over nonempty content.
 - **Plain directory:** use directly only when user requests it. No Git branch/worktree fields; keep task and artifact paths scoped to that directory.
 
-Create the task record atomically before setup. Validate exact base refs and unique branch/path only in worktree mode. Create parent directories after workspace path is established. If interrupted, retain record and partial state, mark `blocked` with recovery details, and never automatically delete/reset anything. Update record to `planning` (or the chosen requested phase) after setup.
+Create the task record atomically before setup. Validate exact base refs and unique branch/path only in worktree mode. Create parent directories after workspace path is established. If interrupted, retain record and partial state, mark `blocked` with recovery details, and never automatically delete/reset anything. After setup, set phase to `investigating` when confirmed workflow includes India; otherwise set the selected starting phase, usually `planning`.
 
 Generate and persist one unique Herdr space ID per task (`sp` plus 32 lowercase hex characters). Pass this ID when launching every role.
 
@@ -92,8 +92,8 @@ Generate and persist one unique Herdr space ID per task (`sp` plus 32 lowercase 
 
 Start task workflow roles as separate, fresh Pi sessions in `workspace_path`. Mike's Jira preflight is the exception: use/reuse the terminal in `$HOME/code/project-manager-agent` as defined above. Use the `herdr-agent` skill wrapper for all new launches; it handles launch mechanics, passes the supplied task, binds the requested space, renames the tab, and returns launch details. Oscar owns role selection, assigned skills, prompt content, task space, and tab names.
 
-- Give every role the `agent-reporting` skill. Also assign `planner` to Papa, `coder` to Delta, and `reviewer` to Romeo. Add other specialized skills only when relevant to the task. `herdr-agent` is Oscar's launch skill, not a default skill for child roles.
-- Every first prompt includes task ID, report destination, and concise role-specific handoff. Papa gets the complete brief verbatim. Delta gets the approved plan and relevant clarifications, or the complete brief if planning is skipped. Romeo gets the approved plan when present, otherwise the brief, plus relevant change context and review scope/constraints. Follow the role-specific reporting requirements in this skill's planning, implementation, and review sections.
+- Give every role the `agent-reporting` skill. Also assign `investigator` plus `pi-subagents` to India, `planner` to Papa, `coder` to Delta, and `reviewer` to Romeo. India needs subagent access to `researcher` and `evidence-auditor`; web tools stay child-only as defined in `AGENTS.md`. Add other specialized skills only when relevant to the task. `herdr-agent` is Oscar's launch skill, not a default skill for child roles.
+- Every first prompt includes task ID, report destination, and concise role-specific handoff. India and Papa each get the complete brief verbatim when India is selected. Papa also gets the investigation report path. Delta gets the approved plan and relevant clarifications, or the complete brief if planning is skipped. Romeo gets the approved plan when present, otherwise the brief, plus relevant change context and review scope/constraints. Follow the role-specific reporting requirements in this skill's investigation, planning, implementation, and review sections.
 - Name tabs with role plus a short task ID, shortened only enough to distinguish active tasks (for example, `Papa · <short-id>`). Pass the name explicitly as `--tab-name`; append an iteration number for replacement roles (for example, `Papa · <short-id> #2`). Keep every role attached to the task's space without changing user focus.
 - Confirm `initial_message.sent` and `tab_renamed` in the wrapper result. Save returned terminal and tab details; handle launch or rename failures without treating the role as successfully briefed/placed.
 
@@ -114,6 +114,7 @@ Default software-task progression (adapt when user requests a different workflow
 
 ```text
 queued → planning --Papa reports plan_ready--> coding → reviewing
+queued → investigating --India reports investigation_complete--> planning (optional research)
 queued → coding                         (planning skipped)
 reviewing → coding                     (Romeo reports CHANGES_REQUESTED)
 reviewing → awaiting_architecture_review (Romeo reports architecture impact, or user requests scope/design change)
@@ -123,11 +124,15 @@ reviewing → complete                   (Romeo reports APPROVE)
 any phase → blocked / failed           (role reports blocker or failure)
 ```
 
-Papa owns planning, plan revisions, and their user reviews; Papa's `plan_ready` report confirms the approved handoff. Romeo owns review and its human decision; Romeo's `review_complete` report confirms the review outcome. Oscar records reports and advances phases without checking artifacts or approval evidence. If scope/design changes require a plan revision, route it to Papa and wait for `plan_ready` before resuming Delta. Delta owns implementation; never direct Papa to implement. Role-owned reviews do not send `human_gate_ready`; that event is only for Oscar-managed gates. Only orchestrator changes phase. For custom workflows, track only applicable phases/gates and do not invent irrelevant approvals. Save `phase`, last event, terminal IDs, workspace mode/path, optional base, and reported artifact paths in the task record on every transition.
+India owns investigation and reports `investigation_complete` with status `done` or `partial`, plus the report path and material gaps. A partial report still advances to planning unless India reports blocked. Papa owns planning, plan revisions, and their user reviews; Papa's `plan_ready` report confirms the approved handoff. Romeo owns review and its human decision; Romeo's `review_complete` report confirms the review outcome. Oscar records reports and advances phases without checking artifacts or approval evidence. If scope/design changes require a plan revision, route it to Papa and wait for `plan_ready` before resuming Delta. Delta owns implementation; never direct Papa to implement. Role-owned reviews do not send `human_gate_ready`; that event is only for Oscar-managed gates. Only orchestrator changes phase. For custom workflows, track only applicable phases/gates and do not invent irrelevant approvals. Save `phase`, last event, terminal IDs, workspace mode/path, optional base, and reported artifact paths in the task record on every transition.
+
+### Investigation
+
+When the confirmed workflow includes India, start one India session after workspace setup and before Papa. Assign the `investigator` and `pi-subagents` skills, complete user brief, task ID, `.agents/INVESTIGATION.md` report destination, and `investigation_complete` report contract. India owns research, researcher/evidence-auditor delegation, report quality, and any supporting `.agents/resources/` artifacts. Do not have Oscar inspect or validate the report. On `investigation_complete`, record the status and artifact paths, then start Papa in the same task space. Papa receives the complete brief verbatim plus the report path and uses the investigation as evidence, not as an approved design. If India reports `partial`, include its gaps in Papa's handoff. If India reports blocked/failed, record it and ask user or report blocker; do not start Papa until user directs continuation or skips investigation.
 
 ### Planning
 
-Whenever a managed task uses planning, start Papa after workspace setup as a top-level agent attached to the task's Herdr space. Papa's first prompt contains the user's complete detailed plan/request verbatim. Provide the report destination and task ID. Papa owns planning reviews and reports `plan_ready` when its process is complete, or `blocked`/`failed` with a reason. Treat `plan_ready` as authoritative confirmation of approval; record it and launch or resume Delta without checking plan artifacts or approval evidence. If user requests direct implementation or another workflow, do not force planning.
+Whenever a managed task uses planning, start Papa as a top-level agent attached to the task's Herdr space. If India is selected, start Papa only after India reports `investigation_complete`; otherwise start Papa after workspace setup. Papa's first prompt contains the user's complete detailed plan/request verbatim, plus the investigation report path when available. Provide the report destination and task ID. Papa owns planning reviews and reports `plan_ready` when its process is complete, or `blocked`/`failed` with a reason. Treat `plan_ready` as authoritative confirmation of approval; record it and launch or resume Delta without checking plan artifacts or approval evidence. If user requests direct implementation or another workflow, do not force planning.
 
 ### Implementation
 

@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.85.1",
+  "lastChangelogVersion": "1.5.2",
   "theme": "catppuccin-mocha",
   "defaultProvider": "github-copilot",
   "defaultModel": "grok-4.5",
@@ -8,8 +8,49 @@
   "packages": [
     "npm:pi-tool-display",
     "npm:pi-footer-manager",
-    "npm:@jasonish/pi-default-model"
+    "npm:@jasonish/pi-default-model",
+    "./packages/pi-subagents",
+    {
+      "source": "npm:pi-web-access@0.48.0",
+      "extensions": []
+    },
+    {
+      "source": "git:github.com/whosydd/pi-web-toolkit@6882236876b9419849e58a17e0e1e2e16493a73a",
+      "extensions": [],
+      "skills": []
+    }
   ],
+  "subagents": {
+    "agentOverrides": {
+      "researcher": {
+        "tools": [
+          "web_search",
+          "fetch_content",
+          "get_search_content",
+          "source_check",
+          "code_search"
+        ],
+        "subagentOnlyExtensions": [
+          "~/.pi/agent/npm/node_modules/pi-web-access/dist/index.js",
+          "~/.pi/agent/git/github.com/whosydd/pi-web-toolkit/extensions/sourcegraph.ts"
+        ],
+        "defaultContext": "fresh"
+      },
+      "evidence-auditor": {
+        "tools": [
+          "read",
+          "web_search",
+          "fetch_content",
+          "get_search_content",
+          "source_check"
+        ],
+        "subagentOnlyExtensions": [
+          "~/.pi/agent/npm/node_modules/pi-web-access/dist/index.js"
+        ],
+        "defaultContext": "fresh"
+      }
+    }
+  },
   "footerManager": {
     "layout": {
       "rows": [
@@ -57,5 +98,9 @@
     "model": "github-copilot/gpt-6-luna",
     "thinkingLevel": "medium"
   },
-  "steeringMode": "one-at-a-time"
+  "steeringMode": "one-at-a-time",
+  "extensionChangelogVersions": {
+    "{\"source\":\"npm:pi-tool-display\",\"scope\":\"user\"}": "0.5.0",
+    "{\"source\":\"./packages/pi-subagents\",\"scope\":\"user\"}": "0.89.0"
+  }
 }

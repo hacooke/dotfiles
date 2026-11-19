@@ -1,0 +1,45 @@
+import { execFileSync } from "node:child_process";
+import * as fs from "node:fs";
+import { currentPidNamespaceScope } from "./pid-namespace.js";
+function readBootIdFromOs() {
+    try {
+        if (process.platform === "linux")
+            return fs.readFileSync("/proc/sys/kernel/random/boot_id", "utf-8").trim() || undefined;
+        if (process.platform === "darwin") {
+            return execFileSync("sysctl", ["-n", "kern.bootsessionuuid"], { encoding: "utf-8", timeout: 1000, stdio: ["ignore", "pipe", "ignore"] }).trim() || undefined;
+        }
+    }
+    catch {
+        // An unreadable boot id only means liveness falls back to probing the pid.
+    }
+    return undefined;
+}
+// Process-wide, so the bundled extension and the compiled runner modules share one value.
+const BOOT_ID_KEY = Symbol.for("pi-subagents.boot-id.v1");
+const runtime = globalThis;
+let reader = readBootIdFromOs;
+/**
+ * Identity of the current machine boot, read once per process. A pid recorded under a
+ * different boot id cannot still be running. Undefined when the platform has none.
+ */
+export function currentBootId() {
+    const cached = runtime[BOOT_ID_KEY];
+    if (cached)
+        return cached.value;
+    const value = reader();
+    runtime[BOOT_ID_KEY] = { value };
+    return value;
+}
+export function currentRecordedPid() {
+    const pidNamespaceScope = currentPidNamespaceScope();
+    const bootId = currentBootId();
+    return { pid: process.pid, ...(pidNamespaceScope ? { pidNamespaceScope } : {}), ...(bootId ? { bootId } : {}) };
+}
+/** Runners take Pi's value from their config. */
+export function primeBootId(value) {
+    runtime[BOOT_ID_KEY] = { value };
+}
+export function resetBootIdForTesting(nextReader) {
+    reader = nextReader ?? readBootIdFromOs;
+    delete runtime[BOOT_ID_KEY];
+}
