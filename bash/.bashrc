@@ -8,11 +8,6 @@
 #                                                     
 # Author: Harry Cooke
 # Source: github.com/hacooke/dotfiles/bash/.bashrc
-#
-# Incomplete and outdated, needs a rebuild
-# TODO
-# + Remove/simplify/relocate conda logic
-# + Better prompt configuration
 
 ## Imports
 # Source global definitions
@@ -49,8 +44,6 @@ pathensure -p "$HOME/.cargo/bin"
 alias ls='ls --color'
 alias grep='grep --color'
 alias mutt='neomutt'
-alias conon='conda activate'
-alias conoff='conda deactivate'
 alias v='vim'
 alias r='ranger'
 alias gfullwarn='g++ -Wall -Wextra -Werror -Wfatal-errors -pedantic-errors -Wshadow -std=c++11'
@@ -82,62 +75,76 @@ command -v xrdb >/dev/null 2>&1 && xrdb -merge ~/.Xresources
 
 source /usr/share/fzf/key-bindings.bash
 source /usr/share/fzf/completion.bash
-### Conda
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$("$HOME/anaconda3/bin/conda" 'shell.bash' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "$HOME/anaconda3/etc/profile.d/conda.sh"
+### Prompt
+__prompt_update() {
+    local last_status=$?
+    local reset='\[\e[0m\]'
+    local blue='\[\e[34m\]'
+    local green='\[\e[32m\]'
+    local yellow='\[\e[33m\]'
+    local red='\[\e[31m\]'
+    local pink='\[\e[35m\]'
+    local dim='\[\e[2;37m\]'
+    local git_info=''
+    local git_text=''
+    local env_name=''
+    local env_text=''
+    local status_info=''
+    local status_text=''
+    local prompt_symbol='❯'
+    local symbol_color=$green
+
+    if git_info=$(git branch --show-current 2>/dev/null) && [[ -n $git_info ]]; then
+        [[ -n $(git status --porcelain 2>/dev/null) ]] && git_info+='*'
+        git_text="  ${git_info}"
+        git_info=" ${blue} ${git_info}${reset}"
     else
-        pathensure "$HOME/anaconda3/bin"
+        git_info=''
     fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
-# Me messing with conda PS1:
-function __ps1_update {
-    col1='\e[00;97;41m\]'
-    col1i2='\e[00;31;42m\]'
 
-    col2='\e[01;97;42m\]'
-    col2i3='\e[00;32;43m\]'
-    col2i4='\e[00;32;44m\]'
-    col2i6='\e[00;32;46m\]'
-
-    col3='\e[01;97;43m\]'
-    col3id='\e[00;33;49m\]'
-
-    col4='\e[01;97;44m\]'
-    col4id='\e[00;34;49m\]'
-
-    col6='\e[01;97;46m\]'
-    col6id='\e[00;36;49m\]'
-
-    col_def='\e[0;0m\]'
-
-    PS1_core="$col1\u@\h $col1i2$col2\W "
-    PS1_prefix=''
-    PS1_prompt=''
-    if [ "$CONDA_DEFAULT_ENV" = "" ]; then
-        #CONDA NOT ACTIVE, REGULAR PROMPT
-        if [ "$EUID" -ne 0 ]; then PS1_prompt="$col2i4$col4\$$col4id"
-        else PS1_prompt="$col2i3$col3\$$col3id"; fi
-    else
-        #CONDA IS ACTIVE, SNAKEY ARROW PROMPT
-        PS1_prompt="$col2i6$col6\$$col6id"
-        if [ "$CONDA_DEFAULT_ENV" != "base" ]; then
-            #NON-DEFAULT ENVIRONMENT, SPECIFY ENV NAME
-            PS1_prefix='\e[01;00;32m$(basename "${CONDA_DEFAULT_ENV}")'
-        fi
+    if [[ -n ${VIRTUAL_ENV:-} ]]; then
+        env_name=${VIRTUAL_ENV##*/}
+        env_text=" (${env_name})"
+        env_name=" ${yellow}(${env_name})${reset}"
     fi
-    #printf '\n'
-    export PS1="$PS1_prefix$PS1_core$PS1_prompt$col_def "
+
+    if (( last_status != 0 )); then
+        status_text=" ✘ ${last_status}"
+        status_info=" ${red}✘ ${last_status}${reset}"
+    fi
+
+    if (( EUID == 0 )); then
+        prompt_symbol='#'
+        symbol_color=$red
+    fi
+
+    local remote_info=''
+    local remote_text=''
+    [[ -n ${SSH_CONNECTION:-} ]] && {
+        remote_info="${dim}\u@\h ${reset}"
+        remote_text="${USER}@${HOSTNAME%%.*} "
+    }
+
+    local prompt_path=$PWD
+    if [[ $prompt_path == "$HOME" ]]; then
+        prompt_path='~'
+    elif [[ $prompt_path == "$HOME/"* ]]; then
+        prompt_path="~${prompt_path#"$HOME"}"
+    fi
+
+    local timestamp right_prompt=''
+    printf -v timestamp '%(%H:%M:%S)T' -1
+    local left_width=$(( ${#remote_text} + 3 + ${#prompt_path} + ${#git_text} + ${#env_text} + ${#status_text} ))
+    local terminal_columns=${COLUMNS:-80}
+    local right_column=$(( terminal_columns - ${#timestamp} ))
+    if (( right_column > left_width + 2 )); then
+        right_prompt="\[\e[s\e[${right_column}G\]${dim}${timestamp}${reset}\[\e[u\]"
+    fi
+
+    PS1="${symbol_color}╭─ ${reset}${remote_info}${pink}\w${reset}${git_info}${env_name}${status_info}${right_prompt}"$'\n'"${symbol_color}╰─ ${reset}${symbol_color}${prompt_symbol} ${reset}"
 }
-#__ps1_update
-#PROMPT_COMMAND='__ps1_update'
+
+PROMPT_COMMAND=__prompt_update
 
 ### Go
 export GOPATH=$HOME/go
